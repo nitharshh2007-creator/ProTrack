@@ -8,6 +8,8 @@ import commentRoutes from "./routes/comment.routes.ts";
 import projectRoutes from "./routes/project.routes.ts";
 import reportRoutes from "./routes/report.routes.ts";
 import taskRoutes from "./routes/task.routes.ts";
+import userRoutes from "./routes/user.routes.ts";
+import analyticsRoutes from "./routes/analytics.routes.ts";
 
 dotenv.config();
 
@@ -24,6 +26,8 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.get("/", (req, res) => {
   res.send("ProTrack API Running...");

@@ -12,8 +12,10 @@ import authorize from "../middleware/authorize.middleware.ts";
 
 const router = express.Router();
 
-// POST /api/tasks
-// Body:
+// POST /api/tasks - Required: title, description, startDate, dueDate, project, assignedTo
+// startDate must be <= dueDate (ISO 8601 format, e.g. "2026-06-01")
+// Optional: status (default: "Todo"), priority (default: "Medium")
+// Example body:
 // {
 //   "title": "Design Login UI",
 //   "description": "Create the login screen layout",

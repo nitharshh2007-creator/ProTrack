@@ -156,8 +156,10 @@ export const createTask = async (req: AuthRequest, res: Response) => {
       task: populatedTask,
     });
   } catch (error) {
+    console.error("[createTask] Error:", error);
     return res.status(500).json({
       message: "Server Error",
+      detail: error instanceof Error ? error.message : String(error),
     });
   }
 };
@@ -221,41 +223,53 @@ export const getTaskById = async (req: AuthRequest, res: Response) => {
     const userRole = req.user?.role;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const task = await Task.findById(req.params.id)
+    const { id } = req.params as { id: string };
+
+    console.log("[getTaskById] Requested ID:", id);
+    console.log("[getTaskById] Valid ObjectId:", Types.ObjectId.isValid(id));
+    console.log("[getTaskById] Task collection:", Task.collection.name);
+
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid task ID format" });
+    }
+
+    const totalTasks = await Task.countDocuments();
+    console.log("[getTaskById] Total tasks in collection:", totalTasks);
+
+    const allTasks = await Task.find().select("_id title").limit(20);
+    console.log("[getTaskById] Available task IDs:", allTasks.map((t) => ({ id: t._id.toString(), title: t.title })));
+
+    const task = await Task.findById(new Types.ObjectId(id))
       .populate("project", "title description status priority")
       .populate("assignedTo", "name email role")
       .populate("createdBy", "name email role");
 
+    console.log("[getTaskById] Task result:", task ? task._id : null);
+
     if (!task) {
-      return res.status(404).json({
-        message: "Task not found",
-      });
+      return res.status(404).json({ message: "Task not found" });
     }
 
     if (!isPrivilegedRole(userRole)) {
-      const currentUserId = userId;
-      const assignedToId = task.assignedTo instanceof Types.ObjectId ? task.assignedTo.toString() : String(task.assignedTo);
-      const createdById = task.createdBy instanceof Types.ObjectId ? task.createdBy.toString() : String(task.createdBy);
+      const assignedToId = (task.assignedTo as unknown as { _id: Types.ObjectId })?._id?.toString()
+        ?? task.assignedTo?.toString();
+      const createdById = (task.createdBy as unknown as { _id: Types.ObjectId })?._id?.toString()
+        ?? task.createdBy?.toString();
 
-      if (assignedToId !== currentUserId && createdById !== currentUserId) {
-        return res.status(403).json({
-          message: "Access denied",
-        });
+      console.log("[getTaskById] userId:", userId, "assignedTo:", assignedToId, "createdBy:", createdById);
+
+      if (assignedToId !== userId && createdById !== userId) {
+        return res.status(403).json({ message: "Access denied" });
       }
     }
 
-    return res.status(200).json({
-      task,
-    });
+    return res.status(200).json({ task });
   } catch (error) {
-    return res.status(500).json({
-      message: "Server Error",
-    });
+    console.error("[getTaskById] Error:", error);
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -295,35 +309,35 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const nextStartDate = startDate !== undefined ? parseDate(startDate) : task.startDate;
-    const nextDueDate = dueDate !== undefined ? parseDate(dueDate) : task.dueDate;
+    // Handle old tasks that pre-date the startDate field:
+    // task.startDate may be undefined on legacy documents.
+    // Only validate dates if the caller is actually changing them.
+    const nextStartDate = startDate !== undefined ? parseDate(startDate) : task.startDate ?? null;
+    const nextDueDate   = dueDate   !== undefined ? parseDate(dueDate)   : task.dueDate   ?? null;
 
-    if (!(nextStartDate instanceof Date) || !(nextDueDate instanceof Date)) {
-      return res.status(400).json({
-        message: "startDate and dueDate must be valid dates",
-      });
+    if (startDate !== undefined && !(nextStartDate instanceof Date)) {
+      return res.status(400).json({ message: "startDate must be a valid date" });
     }
 
-    const dateValidationError = validateTaskDates(nextStartDate, nextDueDate);
+    if (dueDate !== undefined && !(nextDueDate instanceof Date)) {
+      return res.status(400).json({ message: "dueDate must be a valid date" });
+    }
 
-    if (dateValidationError) {
-      return res.status(dateValidationError.status).json({
-        message: dateValidationError.message,
-      });
+    if (nextStartDate instanceof Date && nextDueDate instanceof Date) {
+      const dateValidationError = validateTaskDates(nextStartDate, nextDueDate);
+      if (dateValidationError) {
+        return res.status(dateValidationError.status).json({ message: dateValidationError.message });
+      }
     }
 
     if (title !== undefined) task.title = title;
     if (description !== undefined) task.description = description;
     if (status !== undefined) task.status = status;
     if (priority !== undefined) task.priority = priority;
-    if (startDate !== undefined) {
-      task.startDate = nextStartDate;
-    }
+    if (startDate !== undefined && nextStartDate instanceof Date) task.startDate = nextStartDate;
     if (project !== undefined) task.project = new Types.ObjectId(project);
     if (assignedTo !== undefined) task.assignedTo = new Types.ObjectId(assignedTo);
-    if (dueDate !== undefined) {
-      task.dueDate = nextDueDate;
-    }
+    if (dueDate !== undefined && nextDueDate instanceof Date) task.dueDate = nextDueDate;
 
     await task.save();
 

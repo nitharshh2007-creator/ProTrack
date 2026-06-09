@@ -9,15 +9,7 @@ interface CreateCommentBody {
   task?: string;
 }
 
-const isAdmin = (role?: string) => role === "admin";
-
 const toObjectId = (value: string) => new Types.ObjectId(value);
-
-const hasPermissionToDelete = (
-  commentUserId: string,
-  currentUserId: string,
-  role?: string
-) => commentUserId === currentUserId || isAdmin(role);
 
 export const createComment = async (req: AuthRequest, res: Response) => {
   try {
@@ -132,11 +124,15 @@ export const deleteComment = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const commentUserId = comment.user.toString();
+    const commentOwnerId = comment.user.toString();
+    const isOwner = commentOwnerId === userId;
+    const isAdminUser = role === "admin";
 
-    if (!hasPermissionToDelete(commentUserId, userId, role)) {
+    console.log("[deleteComment] commentOwner:", commentOwnerId, "requestUser:", userId, "role:", role, "isOwner:", isOwner);
+
+    if (!isOwner && !isAdminUser) {
       return res.status(403).json({
-        message: "Access denied",
+        message: "Not authorized to delete this comment",
       });
     }
 

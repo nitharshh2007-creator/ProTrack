@@ -5,11 +5,11 @@ export interface ITask extends Document {
   description: string;
   status: "Todo" | "In Progress" | "Review" | "Blocked" | "Completed";
   priority: "Low" | "Medium" | "High";
-  startDate: Date;
+  startDate?: Date;     // optional to support legacy documents without startDate
   project: Types.ObjectId;
   assignedTo: Types.ObjectId;
   createdBy: Types.ObjectId;
-  dueDate?: Date;
+  dueDate: Date;
 }
 
 const TaskSchema = new Schema<ITask>(
@@ -36,7 +36,7 @@ const TaskSchema = new Schema<ITask>(
     },
     startDate: {
       type: Date,
-      required: true,
+      required: false,   // not required — legacy documents predate this field
     },
     project: {
       type: Schema.Types.ObjectId,
@@ -55,6 +55,7 @@ const TaskSchema = new Schema<ITask>(
     },
     dueDate: {
       type: Date,
+      required: true,
     },
   },
   {

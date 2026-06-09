@@ -27,8 +27,8 @@ interface KanbanBoard {
 interface TimelineTask {
   _id: Types.ObjectId;
   title: string;
-  startDate?: Date;
-  dueDate?: Date;
+  startDate?: Date;   // optional — legacy tasks may not have this field
+  dueDate: Date;
   status: KanbanStatus;
 }
 
@@ -225,47 +225,83 @@ export const getProjectKanban = async (req: Request, res: Response) => {
 };
 
 export const getProjectTimeline = async (req: Request, res: Response) => {
+  console.log("[getProjectTimeline] Called with projectId:", req.params.id);
   try {
-    const project = await Project.findById(req.params.id).select("title");
+    const project = await Project.findById(req.params.id)
+      .select("title description status priority");
 
     if (!project) {
-      return res.status(404).json({
-        message: "Project not found",
-      });
+      console.log("[getProjectTimeline] Project not found");
+      return res.status(404).json({ message: "Project not found" });
     }
 
-    const tasks = await Task.find({ project: project._id })
-      .select("title startDate dueDate status")
-      .sort({ startDate: 1, createdAt: 1 });
+    console.log("[getProjectTimeline] Found project:", project.title);
 
-    const getProgress = (status: KanbanStatus) => {
+    const [tasks, progress] = await Promise.all([
+      Task.find({ project: project._id })
+        .select("title description status priority startDate dueDate assignedTo createdAt")
+        .populate("assignedTo", "name email")
+        .sort({ startDate: 1, dueDate: 1, createdAt: 1 })
+        .lean(),
+      Task.aggregate<{ total: number; completed: number }>([
+        { $match: { project: project._id } },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            completed: { $sum: { $cond: [{ $eq: ["$status", "Completed"] }, 1, 0] } },
+          },
+        },
+      ]),
+    ]);
+
+    const totals = progress[0] ?? { total: 0, completed: 0 };
+    const progressPct = totals.total === 0 ? 0 : Math.round((totals.completed / totals.total) * 100);
+
+    const getProgress = (status: KanbanStatus): number => {
       switch (status) {
-        case "Completed":
-          return 100;
-        case "In Progress":
-          return 50;
-        case "Review":
-          return 75;
-        case "Blocked":
-          return 25;
-        case "Todo":
-        default:
-          return 0;
+        case "Completed":  return 100;
+        case "Review":     return 75;
+        case "In Progress":return 50;
+        case "Blocked":    return 25;
+        default:           return 0;
       }
     };
 
-    const timeline = tasks.map((task: TimelineTask) => ({
-      id: task._id.toString(),
-      name: task.title,
-      start: task.startDate ?? null,
-      end: task.dueDate ?? null,
-      progress: getProgress(task.status),
-    }));
+    const timeline = tasks.map((task) => {
+      const startDate = task.startDate ?? task.createdAt;
+      const endDate = task.dueDate ?? new Date(new Date(startDate).getTime() + 86_400_000);
 
-    return res.status(200).json(timeline);
+      return {
+        id:         task._id.toString(),
+        name:       task.title,
+        description:task.description,
+        status:     task.status,
+        priority:   task.priority,
+        start:      new Date(startDate).toISOString(),
+        end:        new Date(endDate).toISOString(),
+        progress:   getProgress(task.status as KanbanStatus),
+        assignedTo: task.assignedTo,
+      };
+    });
+
+    return res.status(200).json({
+      project: {
+        id:          project._id.toString(),
+        title:       project.title,
+        description: project.description,
+        status:      project.status,
+        priority:    project.priority,
+        progress:    progressPct,
+      },
+      tasks: timeline,
+    });
   } catch (error) {
-    return res.status(500).json({
+    console.error("[getProjectTimeline] ERROR:", error instanceof Error ? error.message : String(error));
+    console.error("[getProjectTimeline] STACK:", error instanceof Error ? error.stack : "");
+    return res.status(500).json({ 
       message: "Server Error",
+      error: error instanceof Error ? error.message : String(error)
     });
   }
 };
