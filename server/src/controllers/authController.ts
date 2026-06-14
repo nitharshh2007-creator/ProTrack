@@ -1,24 +1,29 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User, { USER_ROLES } from "../models/User.ts";
+import User from "../models/User.ts";
 import type { AuthRequest } from "../types/auth.types.ts";
-
-const isUserRole = (value: string): value is (typeof USER_ROLES)[number] =>
-  (USER_ROLES as readonly string[]).includes(value);
 
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
-    const normalizedRole =
-      typeof role === "string" && isUserRole(role) ? role : "member";
+
+    const ALLOWED_REGISTER_ROLES = ["employee", "admin"] as const;
+    type AllowedRole = (typeof ALLOWED_REGISTER_ROLES)[number];
+
+    const isAllowedRole = (v: unknown): v is AllowedRole =>
+      typeof v === "string" && (ALLOWED_REGISTER_ROLES as readonly string[]).includes(v);
+
+    if (role !== undefined && !isAllowedRole(role)) {
+      return res.status(400).json({ message: "Invalid role. Must be 'employee' or 'admin'" });
+    }
+
+    const normalizedRole: AllowedRole = isAllowedRole(role) ? role : "employee";
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,17 +35,19 @@ export const register = async (req: Request, res: Response) => {
       role: normalizedRole,
     });
 
-    res.status(201).json({
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(201).json({
       message: "User registered successfully",
-      user,
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Server Error",
-      error,
-    });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 

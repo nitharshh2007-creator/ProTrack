@@ -1,6 +1,8 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
+import { Types } from "mongoose";
 import Project from "../models/Project.ts";
 import Task from "../models/Task.ts";
+import type { AuthRequest } from "../types/auth.types.ts";
 
 interface TaskStatusCount {
   status: string;
@@ -13,8 +15,14 @@ interface TaskPerProject {
   count: number;
 }
 
-export const getAnalyticsOverview = async (_req: Request, res: Response) => {
+export const getAnalyticsOverview = async (req: AuthRequest, res: Response) => {
   try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const ownedProjects = await Project.find({ createdBy: new Types.ObjectId(userId) }).select("_id");
+    const ownedProjectIds = ownedProjects.map((p) => p._id);
+
     const now = new Date();
 
     const [
@@ -24,61 +32,40 @@ export const getAnalyticsOverview = async (_req: Request, res: Response) => {
       tasksByStatus,
       tasksByProject,
     ] = await Promise.all([
-      // Total projects
-      Project.countDocuments(),
+      Promise.resolve(ownedProjectIds.length),
 
-      // Task totals via aggregation
       Task.aggregate<{
         totalTasks: number;
         completedTasks: number;
         pendingTasks: number;
       }>([
+        { $match: { project: { $in: ownedProjectIds } } },
         {
           $group: {
             _id: null,
             totalTasks: { $sum: 1 },
-            completedTasks: {
-              $sum: { $cond: [{ $eq: ["$status", "Completed"] }, 1, 0] },
-            },
-            pendingTasks: {
-              $sum: { $cond: [{ $ne: ["$status", "Completed"] }, 1, 0] },
-            },
+            completedTasks: { $sum: { $cond: [{ $eq: ["$status", "Completed"] }, 1, 0] } },
+            pendingTasks: { $sum: { $cond: [{ $ne: ["$status", "Completed"] }, 1, 0] } },
           },
         },
       ]),
 
-      // Overdue: dueDate < now and not completed
       Task.countDocuments({
+        project: { $in: ownedProjectIds },
         dueDate: { $lt: now },
         status: { $ne: "Completed" },
       }),
 
-      // Tasks grouped by status
       Task.aggregate<TaskStatusCount>([
-        {
-          $group: {
-            _id: "$status",
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            status: "$_id",
-            count: 1,
-          },
-        },
+        { $match: { project: { $in: ownedProjectIds } } },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+        { $project: { _id: 0, status: "$_id", count: 1 } },
         { $sort: { status: 1 } },
       ]),
 
-      // Tasks per project (top 10)
       Task.aggregate<TaskPerProject>([
-        {
-          $group: {
-            _id: "$project",
-            count: { $sum: 1 },
-          },
-        },
+        { $match: { project: { $in: ownedProjectIds } } },
+        { $group: { _id: "$project", count: { $sum: 1 } } },
         {
           $lookup: {
             from: "projects",
@@ -101,11 +88,7 @@ export const getAnalyticsOverview = async (_req: Request, res: Response) => {
       ]),
     ]);
 
-    const totals = taskStats[0] ?? {
-      totalTasks: 0,
-      completedTasks: 0,
-      pendingTasks: 0,
-    };
+    const totals = taskStats[0] ?? { totalTasks: 0, completedTasks: 0, pendingTasks: 0 };
 
     const completionPercentage =
       totals.totalTasks === 0
@@ -123,7 +106,6 @@ export const getAnalyticsOverview = async (_req: Request, res: Response) => {
       tasksByProject,
     });
   } catch (error) {
-    console.error("[getAnalyticsOverview]", error);
     return res.status(500).json({ message: "Server Error" });
   }
 };

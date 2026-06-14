@@ -1,7 +1,8 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 import { Types } from "mongoose";
 import Project from "../models/Project.ts";
 import Task from "../models/Task.ts";
+import type { AuthRequest } from "../types/auth.types.ts";
 
 interface ProjectReportResponse {
   projectId: string;
@@ -34,14 +35,23 @@ const emptyTaskCounts: Required<TaskStatusCounts> = {
   blockedTasks: 0,
 };
 
-export const getProjectReport = async (req: Request, res: Response) => {
+export const getProjectReport = async (req: AuthRequest, res: Response) => {
   try {
-    const project = await Project.findById(req.params.id).select("title");
+    const userId = req.user?.userId;
+    const userRole = req.user?.role;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    if (!project) {
-      return res.status(404).json({
-        message: "Project not found",
-      });
+    const project = await Project.findById(req.params.id).select("title createdBy members");
+
+    if (!project) return res.status(404).json({ message: "Project not found" });
+
+    if (userRole === "admin") {
+      if (project.createdBy.toString() !== userId)
+        return res.status(403).json({ message: "Access denied" });
+    } else {
+      const uid = new Types.ObjectId(userId);
+      if (!project.members.some((m) => m.equals(uid)))
+        return res.status(403).json({ message: "Access denied" });
     }
 
     const projectObjectId = new Types.ObjectId(project._id);

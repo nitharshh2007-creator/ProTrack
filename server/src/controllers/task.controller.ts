@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 import { Types } from "mongoose";
 import Project from "../models/Project.ts";
 import Task from "../models/Task.ts";
@@ -47,22 +47,11 @@ const validateTaskDates = (startDate: Date, dueDate: Date) => {
   return null;
 };
 
-const populateTask = () =>
-  Task.find()
-    .populate("project", "title description status priority")
-    .populate("assignedTo", "name email role")
-    .populate("createdBy", "name email role");
-
 const isPrivilegedRole = (role?: string) => role === "admin" || role === "manager";
 
-const buildTaskQueryForUser = (userId: string, role?: string) => {
-  if (isPrivilegedRole(role)) {
-    return {};
-  }
-
-  return {
-    $or: [{ assignedTo: new Types.ObjectId(userId) }, { createdBy: new Types.ObjectId(userId) }],
-  };
+const getOwnedProjectIds = async (userId: string) => {
+  const projects = await Project.find({ createdBy: new Types.ObjectId(userId) }).select("_id");
+  return projects.map((p) => p._id);
 };
 
 const validateTaskRefs = async (projectId?: string, assignedToId?: string) => {
@@ -121,9 +110,15 @@ export const createTask = async (req: AuthRequest, res: Response) => {
     const userRole = req.user?.role;
 
     if (!userId || !isPrivilegedRole(userRole)) {
-      return res.status(403).json({
-        message: "Access denied",
-      });
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Admin may only create tasks in their own projects
+    if (userRole === "admin") {
+      const parentProject = await Project.findById(project).select("createdBy");
+      if (!parentProject || parentProject.createdBy.toString() !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
     }
 
     const validationError = await validateTaskRefs(project, assignedTo);
@@ -170,24 +165,30 @@ export const getTasks = async (req: AuthRequest, res: Response) => {
     const userRole = req.user?.role;
 
     if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const tasks = await Task.find(buildTaskQueryForUser(userId, userRole))
+    let taskFilter: Record<string, unknown>;
+
+    if (userRole === "admin") {
+      const ownedProjectIds = await getOwnedProjectIds(userId);
+      taskFilter = { project: { $in: ownedProjectIds } };
+    } else {
+      // managers/members only see tasks assigned to them or created by them
+      taskFilter = {
+        $or: [{ assignedTo: new Types.ObjectId(userId) }, { createdBy: new Types.ObjectId(userId) }],
+      };
+    }
+
+    const tasks = await Task.find(taskFilter)
       .populate("project", "title description status priority")
       .populate("assignedTo", "name email role")
       .populate("createdBy", "name email role")
       .sort({ createdAt: -1 });
 
-    return res.status(200).json({
-      tasks,
-    });
+    return res.status(200).json({ tasks });
   } catch (error) {
-    return res.status(500).json({
-      message: "Server Error",
-    });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -222,44 +223,31 @@ export const getTaskById = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.userId;
     const userRole = req.user?.role;
 
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const { id } = req.params as { id: string };
-
-    console.log("[getTaskById] Requested ID:", id);
-    console.log("[getTaskById] Valid ObjectId:", Types.ObjectId.isValid(id));
-    console.log("[getTaskById] Task collection:", Task.collection.name);
 
     if (!Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid task ID format" });
     }
-
-    const totalTasks = await Task.countDocuments();
-    console.log("[getTaskById] Total tasks in collection:", totalTasks);
-
-    const allTasks = await Task.find().select("_id title").limit(20);
-    console.log("[getTaskById] Available task IDs:", allTasks.map((t) => ({ id: t._id.toString(), title: t.title })));
 
     const task = await Task.findById(new Types.ObjectId(id))
       .populate("project", "title description status priority")
       .populate("assignedTo", "name email role")
       .populate("createdBy", "name email role");
 
-    console.log("[getTaskById] Task result:", task ? task._id : null);
+    if (!task) return res.status(404).json({ message: "Task not found" });
 
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    if (!isPrivilegedRole(userRole)) {
+    if (userRole === "admin") {
+      const parentProject = await Project.findById(task.project).select("createdBy");
+      if (!parentProject || parentProject.createdBy.toString() !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+    } else {
       const assignedToId = (task.assignedTo as unknown as { _id: Types.ObjectId })?._id?.toString()
         ?? task.assignedTo?.toString();
       const createdById = (task.createdBy as unknown as { _id: Types.ObjectId })?._id?.toString()
         ?? task.createdBy?.toString();
-
-      console.log("[getTaskById] userId:", userId, "assignedTo:", assignedToId, "createdBy:", createdById);
 
       if (assignedToId !== userId && createdById !== userId) {
         return res.status(403).json({ message: "Access denied" });
@@ -268,7 +256,6 @@ export const getTaskById = async (req: AuthRequest, res: Response) => {
 
     return res.status(200).json({ task });
   } catch (error) {
-    console.error("[getTaskById] Error:", error);
     return res.status(500).json({ message: "Server Error" });
   }
 };
@@ -288,17 +275,21 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
     }
 
     if (!isPrivilegedRole(userRole)) {
-      return res.status(403).json({
-        message: "Access denied",
-      });
+      return res.status(403).json({ message: "Access denied" });
     }
 
     const task = await Task.findById(req.params.id);
 
     if (!task) {
-      return res.status(404).json({
-        message: "Task not found",
-      });
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // Admin may only update tasks belonging to their own projects
+    if (userRole === "admin") {
+      const parentProject = await Project.findById(task.project).select("createdBy");
+      if (!parentProject || parentProject.createdBy.toString() !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
     }
 
     const validationError = await validateTaskRefs(project, assignedTo);
@@ -369,25 +360,24 @@ export const deleteTask = async (req: AuthRequest, res: Response) => {
     }
 
     if (userRole !== "admin") {
-      return res.status(403).json({
-        message: "Access denied",
-      });
+      return res.status(403).json({ message: "Access denied" });
     }
 
-    const task = await Task.findByIdAndDelete(req.params.id);
+    const task = await Task.findById(req.params.id);
 
     if (!task) {
-      return res.status(404).json({
-        message: "Task not found",
-      });
+      return res.status(404).json({ message: "Task not found" });
     }
 
-    return res.status(200).json({
-      message: "Task deleted successfully",
-    });
+    const parentProject = await Project.findById(task.project).select("createdBy");
+    if (!parentProject || parentProject.createdBy.toString() !== userId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    await task.deleteOne();
+
+    return res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
-    return res.status(500).json({
-      message: "Server Error",
-    });
+    return res.status(500).json({ message: "Server Error" });
   }
 };

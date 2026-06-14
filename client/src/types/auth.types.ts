@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "manager" | "member";
+export type UserRole = "admin" | "manager" | "member" | "employee";
 
 export interface User {
   _id: string;
@@ -25,7 +25,7 @@ export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
-  role?: UserRole;
+  role: "employee" | "admin";
 }
 
 export interface AuthResponse {

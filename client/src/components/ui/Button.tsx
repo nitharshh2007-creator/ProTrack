@@ -3,19 +3,20 @@ import { Spinner } from "./Spinner";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
-  variant?: "primary" | "secondary" | "danger";
+  variant?: "primary" | "secondary" | "danger" | "ghost";
 }
 
-const variants = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700",
-  secondary: "bg-gray-100 text-gray-800 hover:bg-gray-200",
-  danger: "bg-red-600 text-white hover:bg-red-700",
+const variants: Record<string, string> = {
+  primary: "bg-gradient-primary text-white shadow-glow hover:brightness-110",
+  secondary: "bg-white/10 text-slate-100 hover:bg-white/15",
+  danger: "bg-red-500/10 text-red-300 hover:bg-red-500/20",
+  ghost: "bg-transparent text-slate-100 hover:bg-white/5",
 };
 
 export const Button = ({ loading, variant = "primary", children, className = "", disabled, ...props }: ButtonProps) => (
   <button
     disabled={loading || disabled}
-    className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50 ${variants[variant]} ${className}`}
+    className={`inline-flex items-center justify-center gap-2 rounded-3xl px-5 py-3 text-sm font-semibold transition ${variants[variant]} ${disabled ? "opacity-50 pointer-events-none" : ""} ${className}`}
     {...props}
   >
     {loading && <Spinner className="h-4 w-4" />}
