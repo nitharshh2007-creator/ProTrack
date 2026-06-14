@@ -10,6 +10,7 @@ export interface IProject extends Document {
   deadline?: Date;
   createdBy: Types.ObjectId;
   members: Types.ObjectId[];
+  workspaceId: Types.ObjectId;
 }
 
 const ProjectSchema = new Schema<IProject>(
@@ -55,6 +56,11 @@ const ProjectSchema = new Schema<IProject>(
         default: [],
       },
     ],
+    workspaceId: {
+      type: Schema.Types.ObjectId,
+      ref: "Workspace",
+      required: true,
+    },
   },
   {
     timestamps: true,

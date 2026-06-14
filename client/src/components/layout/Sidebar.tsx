@@ -11,6 +11,7 @@ const baseNavItems = [
 
 const adminNavItems = [
   { to: "/analytics", label: "Analytics" },
+  { to: "/team",      label: "Team"      },
 ];
 
 const NavItems = ({ onNavigate, isAdmin }: { onNavigate?: () => void; isAdmin: boolean }) => {

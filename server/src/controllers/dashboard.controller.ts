@@ -2,6 +2,7 @@ import type { Response } from "express";
 import { Types } from "mongoose";
 import Project from "../models/Project.ts";
 import Task from "../models/Task.ts";
+import { resolveWorkspaceId, toOid } from "../middleware/workspace.middleware.ts";
 import type { AuthRequest } from "../types/auth.types.ts";
 
 interface DashboardStats {
@@ -13,42 +14,36 @@ interface DashboardStats {
   completedProjects: number;
 }
 
-interface ProjectStatsAggregate {
-  totalProjects?: number;
-  activeProjects?: number;
-  completedProjects?: number;
-}
-
-interface TaskStatsAggregate {
-  totalTasks?: number;
-  completedTasks?: number;
-  pendingTasks?: number;
-}
-
 export const getDashboardStats = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
     const userRole = req.user?.role;
-
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    const uid = new Types.ObjectId(userId);
+    const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
+    if (!workspaceId) return res.status(401).json({ message: "Unauthorized" });
+
+    const uid = toOid(userId);
+    const wsOid = toOid(workspaceId);
 
     let projectFilter: Record<string, unknown>;
     let taskFilter: Record<string, unknown>;
 
     if (userRole === "admin") {
-      projectFilter = { createdBy: uid };
-      const ownedProjects = await Project.find(projectFilter).select("_id");
-      const ownedProjectIds = ownedProjects.map((p) => p._id);
-      taskFilter = { project: { $in: ownedProjectIds } };
+      projectFilter = { workspaceId: wsOid, createdBy: uid };
+      const owned = await Project.find(projectFilter).select("_id");
+      const ownedIds = owned.map((p) => p._id);
+      taskFilter = { workspaceId: wsOid, project: { $in: ownedIds } };
     } else {
-      projectFilter = { members: uid };
-      taskFilter = { $or: [{ assignedTo: uid }, { createdBy: uid }] };
+      projectFilter = { workspaceId: wsOid, members: uid };
+      taskFilter = {
+        workspaceId: wsOid,
+        $or: [{ assignedTo: uid }, { createdBy: uid }],
+      };
     }
 
     const [projectStats, taskStats] = await Promise.all([
-      Project.aggregate<ProjectStatsAggregate>([
+      Project.aggregate([
         { $match: projectFilter },
         {
           $group: {
@@ -59,7 +54,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
           },
         },
       ]),
-      Task.aggregate<TaskStatsAggregate>([
+      Task.aggregate([
         { $match: taskFilter },
         {
           $group: {

@@ -4,6 +4,7 @@ export interface AuthUserPayload {
   userId: string;
   email: string;
   role: string;
+  workspaceId?: string;
 }
 
 export interface AuthRequest extends Request {

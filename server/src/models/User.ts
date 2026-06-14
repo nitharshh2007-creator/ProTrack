@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export const USER_ROLES = ["admin", "manager", "member", "employee"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
@@ -8,6 +8,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: UserRole;
+  workspaceId?: Types.ObjectId;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -16,22 +17,24 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
     },
-
     email: {
       type: String,
       required: true,
       unique: true,
     },
-
     password: {
       type: String,
       required: true,
     },
-
     role: {
       type: String,
       enum: USER_ROLES,
       default: "employee",
+    },
+    workspaceId: {
+      type: Schema.Types.ObjectId,
+      ref: "Workspace",
+      required: false,
     },
   },
   {

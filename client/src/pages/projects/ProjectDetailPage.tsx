@@ -9,13 +9,25 @@ export const ProjectDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (id) projectService.getById(id).then(setProject).finally(() => setLoading(false));
+    if (!id) return;
+    projectService
+      .getById(id)
+      .then(setProject)
+      .catch((err) => {
+        const status = err?.response?.status;
+        if (status === 403) setError("You don't have access to this project.");
+        else if (status === 404) setError("Project not found.");
+        else setError("Failed to load project.");
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return <div className="flex justify-center pt-20"><Spinner className="h-8 w-8" /></div>;
-  if (!project) return <p className="text-gray-500">Project not found.</p>;
+  if (error) return <p className="text-gray-500">{error}</p>;
+  if (!project) return null;
 
   return (
     <div>

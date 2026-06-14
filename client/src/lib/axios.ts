@@ -13,9 +13,22 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only force-logout when the auth middleware itself rejects the token
+    // (i.e. the request was to an /auth/ endpoint, or the server explicitly
+    // signals an invalid/expired token via the message field).
+    // Never wipe the session on a 401 from a business-logic check — that
+    // would cause a redirect loop when background requests fail for reasons
+    // other than an expired JWT (e.g. missing workspaceId on old tokens
+    // resolved by a DB fallback, or unrelated access-control checks).
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      const url: string = error.config?.url ?? "";
+      const isAuthEndpoint = url.includes("/auth/");
+
+      if (isAuthEndpoint) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

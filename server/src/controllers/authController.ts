@@ -2,86 +2,115 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.ts";
+import Workspace from "../models/Workspace.ts";
 import type { AuthRequest } from "../types/auth.types.ts";
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+const signToken = (
+  userId: string,
+  email: string,
+  role: string,
+  workspaceId?: string
+) =>
+  jwt.sign(
+    { userId, email, role, ...(workspaceId ? { workspaceId } : {}) },
+    process.env.JWT_SECRET as string,
+    { expiresIn: "7d" }
+  );
+
+// ── register ─────────────────────────────────────────────────────────────────
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role } = req.body as {
+      name?: string;
+      email?: string;
+      password?: string;
+      role?: string;
+    };
 
-    const ALLOWED_REGISTER_ROLES = ["employee", "admin"] as const;
-    type AllowedRole = (typeof ALLOWED_REGISTER_ROLES)[number];
-
-    const isAllowedRole = (v: unknown): v is AllowedRole =>
-      typeof v === "string" && (ALLOWED_REGISTER_ROLES as readonly string[]).includes(v);
-
-    if (role !== undefined && !isAllowedRole(role)) {
-      return res.status(400).json({ message: "Invalid role. Must be 'employee' or 'admin'" });
+    // Only admins may self-register. Employees must use an invite link.
+    if (role !== "admin") {
+      return res.status(403).json({
+        message: "Employees must register via an invitation link.",
+      });
     }
 
-    const normalizedRole: AllowedRole = isAllowedRole(role) ? role : "employee";
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email and password are required." });
+    }
 
-    const existingUser = await User.findOne({ email });
-
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: normalizedRole,
+    // Create workspace first so we can reference it on the user
+    const workspace = await Workspace.create({
+      name: `${name.trim()}'s Workspace`,
+      ownerId: null, // placeholder — will be updated after user creation
     });
 
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET as string,
-      { expiresIn: "7d" }
-    );
+    const user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      role: "admin",
+      workspaceId: workspace._id,
+    });
+
+    // Back-fill ownerId now that we have the user id
+    workspace.ownerId = user._id;
+    await workspace.save();
+
+    const workspaceId = workspace._id.toString();
+    const token = signToken(user._id.toString(), user.email, user.role, workspaceId);
 
     return res.status(201).json({
       message: "User registered successfully",
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        workspaceId,
+      },
     });
   } catch (error) {
+    console.error("[register]", error);
     return res.status(500).json({ message: "Server Error" });
   }
 };
 
+// ── login ─────────────────────────────────────────────────────────────────────
+
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body as { email?: string; password?: string };
 
-    const user = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required." });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      return res.status(400).json({
-        message: "Invalid credentials",
-      });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
-      return res.status(400).json({
-        message: "Invalid credentials",
-      });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        email: user.email,
-        role: user.role,
-      },
-      process.env.JWT_SECRET as string,
-      { expiresIn: "7d" }
-    );
+    const workspaceId = user.workspaceId?.toString();
+    const token = signToken(user._id.toString(), user.email, user.role, workspaceId);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Login successful",
       token,
       user: {
@@ -89,39 +118,26 @@ export const login = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        workspaceId,
       },
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Server Error",
-    });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
+
+// ── profile ───────────────────────────────────────────────────────────────────
 
 export const profile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
-
-    if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    }
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const user = await User.findById(userId).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
-    return res.status(200).json({
-      user,
-    });
+    return res.status(200).json({ user });
   } catch (error) {
-    return res.status(500).json({
-      message: "Server Error",
-    });
+    return res.status(500).json({ message: "Server Error" });
   }
 };

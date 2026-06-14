@@ -54,7 +54,9 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
         }
       : defaultForm()
   );
+
   const [projects, setProjects] = useState<Project[]>([]);
+  // workspace-scoped users — backend filters by workspaceId automatically
   const [users, setUsers] = useState<User[]>([]);
   const [dropdownLoading, setDropdownLoading] = useState(true);
   const [dropdownError, setDropdownError] = useState("");
@@ -67,25 +69,20 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
     setDropdownError("");
     Promise.all([projectService.getAll(), userService.getAll()])
       .then(([p, u]) => {
-        console.log("[TaskModal] projects:", p);
-        console.log("[TaskModal] users:", u);
         setProjects(p);
         setUsers(u);
       })
-      .catch((err) => {
-        console.error("[TaskModal] failed to load dropdown data:", err);
-        setDropdownError("Failed to load projects or users.");
-      })
+      .catch(() => setDropdownError("Failed to load projects or users."))
       .finally(() => setDropdownLoading(false));
   }, []);
 
-  const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setForm((prev) => ({ ...prev, project: e.target.value, assignedTo: "" }));
-  };
+  const set =
+    (field: keyof FormState) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const set = (field: keyof FormState) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
+    setForm((prev) => ({ ...prev, project: e.target.value, assignedTo: "" }));
 
   const validate = (): boolean => {
     const e: Partial<FormState> = {};
@@ -150,9 +147,13 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
             value={form.description}
             onChange={set("description")}
             placeholder="Task description"
-            className={`rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 resize-none ${errors.description ? "border-red-500" : "border-gray-300"}`}
+            className={`rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
+              errors.description ? "border-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
+          {errors.description && (
+            <span className="text-xs text-red-500">{errors.description}</span>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -174,9 +175,7 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
           />
         </div>
 
-        {dropdownError && (
-          <p className="text-xs text-red-500">{dropdownError}</p>
-        )}
+        {dropdownError && <p className="text-xs text-red-500">{dropdownError}</p>}
 
         <Select
           label="Project"
@@ -186,17 +185,20 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
           error={errors.project}
           disabled={dropdownLoading}
         >
-          <option value="">
-            {dropdownLoading ? "Loading..." : "Select project"}
-          </option>
+          <option value="">{dropdownLoading ? "Loading..." : "Select project"}</option>
           {!dropdownLoading && projects.length === 0 && (
-            <option disabled value="">No projects found</option>
+            <option disabled value="">
+              No projects found
+            </option>
           )}
           {projects.map((p) => (
-            <option key={p._id} value={p._id}>{p.title}</option>
+            <option key={p._id} value={p._id}>
+              {p.title}
+            </option>
           ))}
         </Select>
 
+        {/* Assign To — only shows users from the same workspace */}
         <Select
           label="Assign To"
           id="assignedTo"
@@ -205,30 +207,42 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
           error={errors.assignedTo}
           disabled={dropdownLoading}
         >
-          <option value="">
-            {dropdownLoading ? "Loading..." : "Select user"}
-          </option>
+          <option value="">{dropdownLoading ? "Loading..." : "Select workspace member"}</option>
           {!dropdownLoading && users.length === 0 && (
-            <option disabled value="">No members found</option>
+            <option disabled value="">
+              No members in workspace
+            </option>
           )}
           {users.map((u) => (
-            <option key={u._id} value={u._id}>{u.name} ({u.role})</option>
+            <option key={u._id} value={u._id}>
+              {u.name} ({u.role})
+            </option>
           ))}
         </Select>
 
         <div className="grid grid-cols-2 gap-3">
           <Select label="Status" id="status" value={form.status} onChange={set("status")}>
-            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
           </Select>
           <Select label="Priority" id="priority" value={form.priority} onChange={set("priority")}>
-            {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
+            {PRIORITIES.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
           </Select>
         </div>
 
         {apiError && <p className="text-sm text-red-500">{apiError}</p>}
 
         <div className="flex justify-end gap-2 pt-1">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
           <Button type="submit" loading={submitting}>
             {task ? "Save Changes" : "Create Task"}
           </Button>

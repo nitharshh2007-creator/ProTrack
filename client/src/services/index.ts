@@ -5,4 +5,5 @@ export { commentService } from "./comment.service";
 export { dashboardService } from "./dashboard.service";
 export { userService } from "./user.service";
 export { analyticsService } from "./analytics.service";
+export { inviteService } from "./invite.service";
 export type { AnalyticsOverview } from "./analytics.service";

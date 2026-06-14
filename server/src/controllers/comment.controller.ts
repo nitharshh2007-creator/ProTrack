@@ -1,149 +1,81 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 import { Types } from "mongoose";
 import Comment from "../models/Comment.ts";
 import Task from "../models/Task.ts";
+import { resolveWorkspaceId, toOid } from "../middleware/workspace.middleware.ts";
 import type { AuthRequest } from "../types/auth.types.ts";
-
-interface CreateCommentBody {
-  content?: string;
-  task?: string;
-}
-
-const toObjectId = (value: string) => new Types.ObjectId(value);
 
 export const createComment = async (req: AuthRequest, res: Response) => {
   try {
-    const { content, task } = req.body as CreateCommentBody;
     const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    }
+    const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
+    if (!workspaceId) return res.status(401).json({ message: "Unauthorized" });
 
-    const trimmedContent = content?.trim();
+    const { content, task } = req.body as { content?: string; task?: string };
+    const trimmed = content?.trim();
+    if (!trimmed) return res.status(400).json({ message: "Comment content cannot be empty" });
+    if (!task)    return res.status(400).json({ message: "Task is required" });
 
-    if (!trimmedContent) {
-      return res.status(400).json({
-        message: "Comment content cannot be empty",
-      });
-    }
-
-    if (!task) {
-      return res.status(400).json({
-        message: "Task is required",
-      });
-    }
-
-    const taskExists = await Task.exists({ _id: task });
-
-    if (!taskExists) {
-      return res.status(404).json({
-        message: "Task not found",
-      });
-    }
+    const taskDoc = await Task.findOne({ _id: task, workspaceId: toOid(workspaceId) });
+    if (!taskDoc) return res.status(404).json({ message: "Task not found" });
 
     const comment = await Comment.create({
-      content: trimmedContent,
-      task: toObjectId(task),
-      user: toObjectId(userId),
+      content: trimmed, task: toOid(task), user: toOid(userId),
     });
 
-    const populatedComment = await Comment.findById(comment._id)
+    const populated = await Comment.findById(comment._id)
       .populate("user", "name email role")
       .populate("task", "title");
 
-    return res.status(201).json({
-      message: "Comment created successfully",
-      comment: populatedComment,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server Error",
-    });
-  }
+    return res.status(201).json({ message: "Comment created successfully", comment: populated });
+  } catch { return res.status(500).json({ message: "Server Error" }); }
 };
 
 export const getCommentsByTask = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
-    const taskId = req.params.taskId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    }
+    const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
+    if (!workspaceId) return res.status(401).json({ message: "Unauthorized" });
 
-    if (typeof taskId !== "string" || !taskId) {
-      return res.status(400).json({
-        message: "Task ID is required",
-      });
-    }
+    const { taskId } = req.params as { taskId: string };
+    if (!taskId) return res.status(400).json({ message: "Task ID is required" });
 
-    const taskExists = await Task.exists({ _id: taskId });
+    const taskExists = await Task.exists({ _id: taskId, workspaceId: toOid(workspaceId) });
+    if (!taskExists) return res.status(404).json({ message: "Task not found" });
 
-    if (!taskExists) {
-      return res.status(404).json({
-        message: "Task not found",
-      });
-    }
-
-    const comments = await Comment.find({ task: toObjectId(taskId) })
+    const comments = await Comment.find({ task: toOid(taskId) })
       .populate("user", "name email role")
       .populate("task", "title")
       .sort({ createdAt: -1 });
 
-    return res.status(200).json({
-      comments,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server Error",
-    });
-  }
+    return res.status(200).json({ comments });
+  } catch { return res.status(500).json({ message: "Server Error" }); }
 };
 
 export const deleteComment = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
-    const role = req.user?.role;
+    const userRole = req.user?.role;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    if (!userId) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    }
+    const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
+    if (!workspaceId) return res.status(401).json({ message: "Unauthorized" });
 
-    const comment = await Comment.findById(req.params.id);
+    const comment = await Comment.findById(req.params.id).populate("task", "workspaceId");
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
 
-    if (!comment) {
-      return res.status(404).json({
-        message: "Comment not found",
-      });
-    }
+    const taskDoc = comment.task as unknown as { workspaceId?: Types.ObjectId };
+    if (taskDoc?.workspaceId?.toString() !== workspaceId)
+      return res.status(403).json({ message: "Access denied" });
 
-    const commentOwnerId = comment.user.toString();
-    const isOwner = commentOwnerId === userId;
-    const isAdminUser = role === "admin";
-
-    console.log("[deleteComment] commentOwner:", commentOwnerId, "requestUser:", userId, "role:", role, "isOwner:", isOwner);
-
-    if (!isOwner && !isAdminUser) {
-      return res.status(403).json({
-        message: "Not authorized to delete this comment",
-      });
-    }
+    if (comment.user.toString() !== userId && userRole !== "admin")
+      return res.status(403).json({ message: "Not authorized to delete this comment" });
 
     await Comment.findByIdAndDelete(req.params.id);
-
-    return res.status(200).json({
-      message: "Comment deleted successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server Error",
-    });
-  }
+    return res.status(200).json({ message: "Comment deleted successfully" });
+  } catch { return res.status(500).json({ message: "Server Error" }); }
 };
