@@ -3,11 +3,12 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 export interface IProject extends Document {
   title: string;
   description: string;
-  status: "Planning" | "Active" | "Completed";
+  status: "Planning" | "Active" | "Completed" | "Archived";
   priority: "Low" | "Medium" | "High";
   startDate?: Date;
   endDate?: Date;
   deadline?: Date;
+  coverImage?: string;
   createdBy: Types.ObjectId;
   members: Types.ObjectId[];
   workspaceId: Types.ObjectId;
@@ -27,7 +28,7 @@ const ProjectSchema = new Schema<IProject>(
     },
     status: {
       type: String,
-      enum: ["Planning", "Active", "Completed"],
+      enum: ["Planning", "Active", "Completed", "Archived"],
       default: "Planning",
     },
     priority: {
@@ -43,6 +44,10 @@ const ProjectSchema = new Schema<IProject>(
     },
     deadline: {
       type: Date,
+    },
+    coverImage: {
+      type: String,
+      default: null,
     },
     createdBy: {
       type: Schema.Types.ObjectId,

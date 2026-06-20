@@ -5,7 +5,7 @@ import Task from "../models/Task.ts";
 import { resolveWorkspaceId, toOid } from "../middleware/workspace.middleware.ts";
 import type { AuthRequest } from "../types/auth.types.ts";
 
-type ProjectStatus = "Planning" | "Active" | "Completed";
+type ProjectStatus = "Planning" | "Active" | "Completed" | "Archived";
 type ProjectPriority = "Low" | "Medium" | "High";
 type KanbanStatus = "Todo" | "In Progress" | "Review" | "Blocked" | "Completed";
 
@@ -42,6 +42,25 @@ const ownsProject = (createdBy: Types.ObjectId, userId: string) =>
 
 const isMember = (members: Types.ObjectId[], userId: string) =>
   members.some((m) => m.toString() === userId);
+
+const canAccessProject = (project: any, userId: string, userRole: string) => {
+  console.log("[Project Access Check]", {
+    userId,
+    userRole,
+    projectId: project._id,
+    projectOwner: project.createdBy?.toString?.() || project.createdBy,
+    projectWorkspace: project.workspaceId?.toString?.() || project.workspaceId,
+    projectMembers: project.members?.map((m: any) => m.toString?.() || m),
+  });
+
+  if (userRole === "admin") {
+    // Admins can access any project in their workspace
+    return true;
+  } else {
+    // Non-admins can only access projects they're members of
+    return isMember(project.members as unknown as Types.ObjectId[], userId);
+  }
+};
 
 const emptyBoard = (): KanbanBoard => ({
   Todo: [], "In Progress": [], Review: [], Blocked: [], Completed: [],
@@ -94,16 +113,19 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
     const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
     if (!workspaceId) return res.status(401).json({ message: "Unauthorized" });
 
+    console.log("[getProjects]", { userId, userRole, workspaceId });
+
     const wsOid = toOid(workspaceId);
     const filter =
       userRole === "admin"
-        ? { workspaceId: wsOid, createdBy: toOid(userId) }
-        : { workspaceId: wsOid, members: toOid(userId) };
+        ? { workspaceId: wsOid } // Admins see ALL projects in their workspace
+        : { workspaceId: wsOid, members: toOid(userId) }; // Non-admins see only projects they're members of
 
     const projects = await Project.find(filter)
       .populate("createdBy", "name email role")
       .populate("members",   "name email role");
 
+    console.log("[getProjects] Found", projects.length, "projects");
     return res.status(200).json({ projects });
   } catch {
     return res.status(500).json({ message: "Server Error" });
@@ -130,12 +152,9 @@ export const getProjectById = async (req: AuthRequest, res: Response) => {
 
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    if (userRole === "admin") {
-      if (!ownsProject(project.createdBy as unknown as Types.ObjectId, userId))
-        return res.status(403).json({ message: "Access denied" });
-    } else {
-      if (!isMember(project.members as unknown as Types.ObjectId[], userId))
-        return res.status(403).json({ message: "Access denied" });
+    if (!canAccessProject(project, userId, userRole)) {
+      console.log("[getProjectById] Access denied", { userId, projectId: req.params.id });
+      return res.status(403).json({ message: "Access denied" });
     }
 
     return res.status(200).json({ project });
@@ -158,16 +177,15 @@ export const getProjectProgress = async (req: AuthRequest, res: Response) => {
     const wsOid = toOid(workspaceId);
     const project = await Project.findOne({
       _id: req.params.id, workspaceId: wsOid,
-    }).select("title createdBy members");
+    }).select("title createdBy members")
+      .populate("createdBy", "name")
+      .populate("members", "name");
 
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    if (userRole === "admin") {
-      if (!ownsProject(project.createdBy as unknown as Types.ObjectId, userId))
-        return res.status(403).json({ message: "Access denied" });
-    } else {
-      if (!isMember(project.members as unknown as Types.ObjectId[], userId))
-        return res.status(403).json({ message: "Access denied" });
+    if (!canAccessProject(project, userId, userRole)) {
+      console.log("[getProjectProgress] Access denied", { userId, projectId: req.params.id });
+      return res.status(403).json({ message: "Access denied" });
     }
 
     const [totalTasks, completedTasks] = await Promise.all([
@@ -202,16 +220,15 @@ export const getProjectKanban = async (req: AuthRequest, res: Response) => {
     const wsOid = toOid(workspaceId);
     const project = await Project.findOne({
       _id: req.params.id, workspaceId: wsOid,
-    }).select("title createdBy members");
+    }).select("title createdBy members")
+      .populate("createdBy", "name")
+      .populate("members", "name");
 
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    if (userRole === "admin") {
-      if (!ownsProject(project.createdBy as unknown as Types.ObjectId, userId))
-        return res.status(403).json({ message: "Access denied" });
-    } else {
-      if (!isMember(project.members as unknown as Types.ObjectId[], userId))
-        return res.status(403).json({ message: "Access denied" });
+    if (!canAccessProject(project, userId, userRole)) {
+      console.log("[getProjectKanban] Access denied", { userId, projectId: req.params.id });
+      return res.status(403).json({ message: "Access denied" });
     }
 
     const taskFilter: Record<string, unknown> = { project: project._id, workspaceId: wsOid };
@@ -253,16 +270,15 @@ export const getProjectTimeline = async (req: AuthRequest, res: Response) => {
     const wsOid = toOid(workspaceId);
     const project = await Project.findOne({
       _id: req.params.id, workspaceId: wsOid,
-    }).select("title description status priority createdBy members");
+    }).select("title description status priority createdBy members")
+      .populate("createdBy", "name")
+      .populate("members", "name");
 
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    if (userRole === "admin") {
-      if (!ownsProject(project.createdBy as unknown as Types.ObjectId, userId))
-        return res.status(403).json({ message: "Access denied" });
-    } else {
-      if (!isMember(project.members as unknown as Types.ObjectId[], userId))
-        return res.status(403).json({ message: "Access denied" });
+    if (!canAccessProject(project, userId, userRole)) {
+      console.log("[getProjectTimeline] Access denied", { userId, projectId: req.params.id });
+      return res.status(403).json({ message: "Access denied" });
     }
 
     const taskFilter: Record<string, unknown> = { project: project._id, workspaceId: wsOid };
@@ -316,6 +332,7 @@ export const getProjectTimeline = async (req: AuthRequest, res: Response) => {
 export const updateProject = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
+    const userRole = req.user?.role;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
@@ -326,11 +343,16 @@ export const updateProject = async (req: AuthRequest, res: Response) => {
 
     const project = await Project.findOne({
       _id: req.params.id, workspaceId: toOid(workspaceId),
-    });
+    })
+      .populate("createdBy", "name")
+      .populate("members", "name");
 
     if (!project) return res.status(404).json({ message: "Project not found" });
-    if (!ownsProject(project.createdBy as unknown as Types.ObjectId, userId))
+    
+    if (!canAccessProject(project, userId, userRole)) {
+      console.log("[updateProject] Access denied", { userId, projectId: req.params.id });
       return res.status(403).json({ message: "Access denied" });
+    }
 
     if (title       !== undefined) project.title       = title;
     if (description !== undefined) project.description = description;
@@ -358,6 +380,7 @@ export const updateProject = async (req: AuthRequest, res: Response) => {
 export const deleteProject = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
+    const userRole = req.user?.role;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
@@ -365,14 +388,52 @@ export const deleteProject = async (req: AuthRequest, res: Response) => {
 
     const project = await Project.findOne({
       _id: req.params.id, workspaceId: toOid(workspaceId),
-    });
+    })
+      .populate("createdBy", "name")
+      .populate("members", "name");
 
     if (!project) return res.status(404).json({ message: "Project not found" });
-    if (!ownsProject(project.createdBy as unknown as Types.ObjectId, userId))
+    
+    if (!canAccessProject(project, userId, userRole)) {
+      console.log("[deleteProject] Access denied", { userId, projectId: req.params.id });
       return res.status(403).json({ message: "Access denied" });
+    }
 
     await project.deleteOne();
     return res.status(200).json({ message: "Project deleted successfully" });
+  } catch {
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// ── uploadCoverImage ──────────────────────────────────────────────────────────
+
+export const uploadCoverImage = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    const userRole = req.user?.role;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
+    if (!workspaceId) return res.status(401).json({ message: "Unauthorized" });
+
+    const project = await Project.findOne({
+      _id: req.params.id, workspaceId: toOid(workspaceId),
+    }).populate("createdBy", "name").populate("members", "name");
+
+    if (!project) return res.status(404).json({ message: "Project not found" });
+    
+    if (!canAccessProject(project, userId, userRole)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const imageData = req.body?.image; // expects base64 data URI
+    if (!imageData) return res.status(400).json({ message: "Image data required" });
+
+    project.coverImage = imageData;
+    await project.save();
+
+    return res.status(200).json({ message: "Cover image updated", project });
   } catch {
     return res.status(500).json({ message: "Server Error" });
   }

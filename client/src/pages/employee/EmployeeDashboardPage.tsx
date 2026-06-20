@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { Activity, CalendarDays, Clock, Trophy, Sparkles } from "lucide-react";
-import { useNavigate } from "@tanstack/router";
+import { Activity, Clock, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
@@ -31,9 +31,9 @@ export const EmployeeDashboardPage = () => {
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) {
-        navigate({ to: "/login" });
+        navigate("/login");
       } else if (hasRole("admin")) {
-        navigate({ to: "/admin/dashboard" });
+        navigate("/admin/dashboard");
       }
     }
   }, [hasRole, isAuthenticated, isLoading, navigate]);

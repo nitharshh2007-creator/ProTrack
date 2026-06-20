@@ -9,6 +9,14 @@ import { formatDate } from "@/lib/formatDate";
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type ViewMode = "day" | "week" | "month";
+type TimelineItemWithFallbackDates = TimelineItem & {
+  startDate?: string;
+  dueDate?: string;
+};
+type NormalizedTimelineItem = TimelineItemWithFallbackDates & {
+  start: string;
+  end: string;
+};
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -195,20 +203,18 @@ const GanttChart = ({
   // Debug: Log incoming data
   console.log("Gantt Tasks:", tasks);
 
-  const validTasks = tasks.filter(
-    (t: any) =>
-      (t.start || t.startDate) &&
-      (t.end || t.dueDate) &&
-      !isNaN(new Date(t.start || t.startDate).getTime()) &&
-      !isNaN(new Date(t.end || t.dueDate).getTime())
-  );
+  const validTasks = (tasks as TimelineItemWithFallbackDates[]).filter((task) => {
+    const start = task.start || task.startDate;
+    const end = task.end || task.dueDate;
+    return Boolean(start && end && !isNaN(new Date(start).getTime()) && !isNaN(new Date(end).getTime()));
+  });
   
   console.log("Gantt Valid Tasks:", validTasks);
 
-  const normalizedTasks = validTasks.map((task: any) => ({
+  const normalizedTasks: NormalizedTimelineItem[] = validTasks.map((task) => ({
     ...task,
-    start: task.start || task.startDate,
-    end: task.end || task.dueDate,
+    start: (task.start || task.startDate) as string,
+    end: (task.end || task.dueDate) as string,
   }));
 
   if (normalizedTasks.length === 0) {

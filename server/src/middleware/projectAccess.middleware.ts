@@ -23,9 +23,7 @@ const validateProjectAccess = async (
     }
 
     if (userRole === "admin") {
-      if (project.createdBy.toString() !== userId) {
-        return res.status(403).json({ message: "Access denied" });
-      }
+      // Admins can access any project in their workspace
     } else {
       const uid = new Types.ObjectId(userId);
       const isMember = project.members.some((m) => m.equals(uid));

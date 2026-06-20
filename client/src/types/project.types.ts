@@ -12,10 +12,15 @@ export interface Project {
   startDate?: string;
   endDate?: string;
   deadline?: string;
+  coverImage?: string | null;
   createdBy: User;
   members: User[];
   createdAt: string;
   updatedAt: string;
+  completedTasks?: number;
+  totalTasks?: number;
+  memberCount?: number;
+  workspaceId?: string;
 }
 
 export interface CreateProjectPayload {
@@ -24,12 +29,14 @@ export interface CreateProjectPayload {
   status?: ProjectStatus;
   priority?: ProjectPriority;
   deadline?: string;
+  coverImage?: string;
   members?: string[];
 }
 
-export interface UpdateProjectPayload extends Partial<CreateProjectPayload> {
+export type UpdateProjectPayload = Partial<Omit<CreateProjectPayload, "deadline" | "coverImage">> & {
   deadline?: string | null;
-}
+  coverImage?: string | null;
+};
 
 export interface ProjectProgress {
   projectId: string;

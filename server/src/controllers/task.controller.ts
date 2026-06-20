@@ -61,8 +61,7 @@ export const createTask = async (req: AuthRequest, res: Response) => {
     const dateErr = validateDates(parsedStart, parsedDue);
     if (dateErr) return res.status(dateErr.status).json({ message: dateErr.message });
 
-    if (userRole === "admin" && !(await projectOwnedBy(project, userId)))
-      return res.status(403).json({ message: "Access denied" });
+    // Admins can create tasks for any project in their workspace
 
     const refErr = await validateRefs(workspaceId, project, assignedTo);
     if (refErr) return res.status(refErr.status).json({ message: refErr.message });
@@ -152,8 +151,7 @@ export const getTaskById = async (req: AuthRequest, res: Response) => {
     if (!task) return res.status(404).json({ message: "Task not found" });
 
     if (userRole === "admin") {
-      if (!(await projectOwnedBy(task.project, userId)))
-        return res.status(403).json({ message: "Access denied" });
+      // Admins can view any task in their workspace
     } else {
       const aId = (task.assignedTo as unknown as { _id: Types.ObjectId })?._id?.toString() ?? task.assignedTo?.toString();
       const cId = (task.createdBy  as unknown as { _id: Types.ObjectId })?._id?.toString() ?? task.createdBy?.toString();
@@ -180,8 +178,7 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
     const task = await Task.findOne({ _id: req.params.id, workspaceId: toOid(workspaceId) });
     if (!task) return res.status(404).json({ message: "Task not found" });
 
-    if (userRole === "admin" && !(await projectOwnedBy(task.project, userId)))
-      return res.status(403).json({ message: "Access denied" });
+    // Admins can update any task in their workspace
 
     const refErr = await validateRefs(workspaceId, project, assignedTo);
     if (refErr) return res.status(refErr.status).json({ message: refErr.message });
@@ -228,8 +225,7 @@ export const deleteTask = async (req: AuthRequest, res: Response) => {
 
     const task = await Task.findOne({ _id: req.params.id, workspaceId: toOid(workspaceId) });
     if (!task) return res.status(404).json({ message: "Task not found" });
-    if (!(await projectOwnedBy(task.project, userId)))
-      return res.status(403).json({ message: "Access denied" });
+    // Admins can delete any task in their workspace
 
     await task.deleteOne();
     return res.status(200).json({ message: "Task deleted successfully" });

@@ -1,68 +1,348 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @layer base {
   :root {
-    color-scheme: dark;
-    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-    background-color: #030712;
-    color: #e2e8f0;
+    color-scheme: light;
+
+    --bg: #ffffff;
+    --surface: rgba(255,255,255,0.8);
+
+    --navbar: #0f172a;
+
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+
+    --text: #0f172a;
+    --muted: #64748b;
+
+    --border: rgba(15,23,42,0.08);
+
+    font-family:
+      "Manrope",
+      ui-sans-serif,
+      system-ui,
+      sans-serif;
   }
 
-  html {
-    min-height: 100%;
-    scroll-behavior: smooth;
+  .dark {
+    color-scheme: dark;
+    --bg: #090d16;
+    --surface: rgba(15,23,42,0.85);
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: rgba(255,255,255,0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100vh;
   }
 
   body {
     margin: 0;
-    min-height: 100vh;
-    background: radial-gradient(circle at top left, rgba(124, 58, 237, 0.16), transparent 24%), radial-gradient(circle at 90% 20%, rgba(236, 72, 153, 0.12), transparent 20%), #020617;
-    color: #e2e8f0;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background: rgba(139, 92, 246, 0.35);
-    color: #fff;
+    background: rgba(37,99,235,0.15); /* Keep blue accent for selection */
+  }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(37,99,235,0.18);
+    border-radius: 999px; /* Blue accent for scrollbar */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(37,99,235,0.3); /* Darker blue accent on hover */
   }
 }
 
 @layer utilities {
-  .bg-hero {
-    background-image: radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.22), transparent 24%), radial-gradient(circle at 85% 12%, rgba(236, 72, 153, 0.16), transparent 22%), radial-gradient(circle at 50% 95%, rgba(59, 130, 246, 0.1), transparent 18%);
-    background-color: #020617;
+
+  /* ======================================
+     PREMIUM GLASS
+  ====================================== */
+
+  .glass {
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    border: 1px solid var(--border);
+
+    box-shadow:
+      0 1px 2px rgba(15,23,42,0.04),
+      0 8px 24px rgba(15,23,42,0.06);
   }
 
-  .bg-glass {
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(22px);
+  .glass-card {
+    background: var(--surface);
+
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    
+    border: 1px solid var(--border);
+
+    border-radius: 24px;
+
+    box-shadow:
+      0 2px 4px rgba(15,23,42,0.04),
+      0 10px 30px rgba(15,23,42,0.06);
   }
 
-  .bg-gradient-primary {
-    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  .glass-card:hover {
+    transform: translateY(-6px);
+
+    border-color: rgba(37,99,235,0.2);
+
+    box-shadow:
+      0 20px 40px rgba(37,99,235,0.12);
   }
 
-  .shadow-glow {
-    box-shadow: 0 20px 120px rgba(139, 92, 246, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  /* ======================================
+     DARK NAVBAR
+  ====================================== */
+
+  .nav-blur {
+    background: rgba(15,23,42,0.92); /* Dark navy for navbar */
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
-  .shadow-card {
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.04);
+  .nav-blur-solid {
+    background: #0f172a; /* Solid dark navy for navbar */
   }
 
-  .text-gradient {
-    background: linear-gradient(90deg, #d946ef, #8b5cf6, #ec4899);
-    -webkit-background-clip: text;
-    color: transparent;
+  /* ======================================
+     BUTTONS
+  ====================================== */
+
+  .btn-primary {
+    background: linear-gradient(
+      135deg,
+      #2563eb, /* Blue accent */
+      #3b82f6 /* Light blue accent */
+    );
+
+    color: white;
+
+    border: none;
+
+    transition: all 0.25s ease;
   }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+
+    box-shadow: /* Blue glow on hover */
+      0 12px 30px rgba(37,99,235,0.35);
+  }
+
+  /* ======================================
+     PROJECT CARDS
+  ====================================== */
+
+  .project-card {
+    position: relative;
+    overflow: hidden;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 24px;
+
+    transition: all 0.3s ease;
+  }
+
+  .project-card:hover {
+    transform: translateY(-8px);
+
+    border-color: rgba(37,99,235,0.2); /* Blue accent border on hover */
+
+    box-shadow:
+      0 20px 50px rgba(37,99,235,0.15);
+  }
+
+  .project-card::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+      linear-gradient(
+        135deg, /* Subtle blue gradient on hover */
+        rgba(37,99,235,0.04), 
+        transparent
+      );
+
+    opacity: 0;
+
+    transition: opacity .3s ease;
+  }
+
+  .project-card:hover::before {
+    opacity: 1;
+  }
+
+  /* ======================================
+     HERO SECTION
+  ====================================== */
+
+  .hero-card {
+    background:
+      linear-gradient(
+        135deg,
+        rgba(255,255,255,0.95),
+        rgba(248,250,252,0.85) /* Light gradient for hero card */
+      );
+
+    border: 1px solid rgba(15,23,42,0.08); /* Subtle dark border */
+
+    border-radius: 28px;
+
+    box-shadow: /* Soft dark shadow */
+      0 20px 50px rgba(15,23,42,0.08);
+  }
+
+  /* ======================================
+     GRADIENT PLACEHOLDERS
+  ====================================== */
+  .gradient-placeholder {
+    background: linear-gradient(135deg, #60a5fa, #2563eb); /* Default blue gradient */
+  }
+  .gradient-placeholder-purple {
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  }
+
+  /* ======================================
+     STATS CARDS
+  ====================================== */
+
+  .stats-card {
+    background: var(--surface);
+    
+    border: 1px solid var(--border);
+
+    border-radius: 24px;
+
+    transition: all .25s ease;
+  }
+  
+  .stats-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+      0 16px 32px rgba(37,99,235,0.12);
+  }
+
+  /* ======================================
+     TEXT
+  ====================================== */
+  
+  .text-muted {
+    color: #64748b;
+  }
+  
+  .text-bright {
+    color: #0f172a;
+  }
+
+  /* ======================================
+     BLUE GLOW
+  ====================================== */
+
+  .glow-blue {
+    box-shadow: /* Blue glow effect */
+      0 12px 32px rgba(37,99,235,0.25);
+  }
+
+  .glow-blue-soft {
+    box-shadow:
+      0 8px 20px rgba(37,99,235,0.15);
+  }
+}
+
+/* ======================================
+   NAVIGATION LINKS
+====================================== */
+
+.nav-link {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+
+  padding: .7rem 1rem;
+
+  border-radius: 14px;
+
+  color: rgba(255,255,255,.72);
+
+  font-weight: 600;
+
+  transition: all .25s ease;
+}
+
+.nav-link:hover {
+  color: white;
+
+  background: rgba(255,255,255,.08);
+}
+
+.nav-link::after {
+  content: "";
+
+  position: absolute;
+
+  left: 14px;
+  right: 14px;
+  bottom: 6px;
+
+  height: 2px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #60a5fa,
+      #2563eb
+    );
+
+  transform: scaleX(0);
+
+  transition: transform .25s ease;
+}
+
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-link.is-active {
+  color: white;
+
+  background: rgba(255,255,255,.08);
+}
+
+.nav-link.is-active::after {
+  transform: scaleX(1);
 }

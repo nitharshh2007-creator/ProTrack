@@ -30,4 +30,4 @@ export interface CreateTaskPayload {
   priority?: TaskPriority;
 }
 
-export interface UpdateTaskPayload extends Partial<CreateTaskPayload> {}
+export type UpdateTaskPayload = Partial<CreateTaskPayload>;

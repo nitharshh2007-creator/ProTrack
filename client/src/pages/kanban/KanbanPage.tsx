@@ -19,7 +19,7 @@ const COLUMN_STYLES: Record<TaskStatus, { bg: string; dot: string }> = {
 type Board = Record<TaskStatus, Task[]>;
 
 const buildBoard = (tasks: Task[]): Board => {
-  const board = Object.fromEntries(COLUMNS.map((c) => [c, []])) as Board;
+  const board = Object.fromEntries(COLUMNS.map((c) => [c, [] as Task[]])) as unknown as Board;
   for (const task of tasks) {
     if (task.status in board) board[task.status].push(task);
   }

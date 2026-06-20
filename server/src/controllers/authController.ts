@@ -107,6 +107,16 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // Auto-create workspace for legacy admins who don't have one yet
+    if (user.role === "admin" && !user.workspaceId) {
+      const ws = await Workspace.create({
+        name: `${user.name.trim()}'s Workspace`,
+        ownerId: user._id,
+      });
+      user.workspaceId = ws._id;
+      await user.save();
+    }
+
     const workspaceId = user.workspaceId?.toString();
     const token = signToken(user._id.toString(), user.email, user.role, workspaceId);
 
@@ -138,6 +148,29 @@ export const profile = async (req: AuthRequest, res: Response) => {
 
     return res.status(200).json({ user });
   } catch (error) {
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// ── me ────────────────────────────────────────────────────────────────────────
+// GET /api/auth/me — returns current user with fresh workspaceId from DB
+
+export const me = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const user = await User.findById(userId).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    return res.status(200).json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      workspaceId: user.workspaceId?.toString(),
+    });
+  } catch {
     return res.status(500).json({ message: "Server Error" });
   }
 };

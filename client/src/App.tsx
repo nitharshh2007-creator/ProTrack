@@ -12,15 +12,17 @@ import { CreateProjectPage } from "@/pages/projects/CreateProjectPage";
 import { TasksPage } from "@/pages/tasks/TasksPage";
 import { TaskDetailPage } from "@/pages/tasks/TaskDetailPage";
 import { KanbanPage } from "@/pages/kanban/KanbanPage";
-import { GanttPage } from "@/pages/gantt/GanttPage";
 import { ReportPage } from "@/pages/reports/ReportPage";
 import { AnalyticsPage } from "@/pages/analytics/AnalyticsPage";
 import { ProjectTimelinePage } from "@/pages/projects/ProjectTimelinePage";
 import { AdminEmployeesPage } from "@/pages/admin/AdminEmployeesPage";
+import { ProfilePage } from "@/pages/profile/ProfilePage";
+import { SettingsPage } from "@/pages/settings/SettingsPage";
 
-const App = () => (
-  <BrowserRouter>
-    <AuthProvider>
+const App = () => {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
       <Routes>
         {/* ── Public: invite acceptance (no auth required) ── */}
         <Route path="/invite/:token" element={<AcceptInvitePage />} />
@@ -54,6 +56,10 @@ const App = () => (
             {/* Analytics — admin only */}
             <Route path="/analytics" element={<AnalyticsPage />} />
 
+            {/* Profile & settings */}
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+
             {/* Team / Employees — admin only */}
             <Route element={<AdminRoute />}>
               <Route path="/team" element={<AdminEmployeesPage />} />
@@ -65,6 +71,7 @@ const App = () => (
       </Routes>
     </AuthProvider>
   </BrowserRouter>
-);
+  );
+};
 
 export default App;

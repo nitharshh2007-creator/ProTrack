@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login, profile } from "../controllers/authController.ts";
+import { register, login, profile, me } from "../controllers/authController.ts";
 import authMiddleware from "../middleware/auth.middleware.ts";
 import authorize from "../middleware/authorize.middleware.ts";
 
@@ -12,6 +12,7 @@ router.get("/test", (req, res) => {
 router.post("/register", register);
 router.post("/login", login);
 router.get("/profile", authMiddleware, profile);
+router.get("/me", authMiddleware, me);
 router.get("/admin-test", authMiddleware, authorize("admin"), (req, res) => {
   res.status(200).json({
     message: "Admin access granted",

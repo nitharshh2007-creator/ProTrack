@@ -21,8 +21,7 @@ export const getProjectReport = async (req: AuthRequest, res: Response) => {
     if (!project) return res.status(404).json({ message: "Project not found" });
 
     if (userRole === "admin") {
-      if (project.createdBy.toString() !== userId)
-        return res.status(403).json({ message: "Access denied" });
+      // Admins can access reports for any project in their workspace
     } else {
       if (!project.members.some((m) => m.toString() === userId))
         return res.status(403).json({ message: "Access denied" });

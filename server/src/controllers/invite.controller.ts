@@ -6,25 +6,9 @@ import { Types } from "mongoose";
 import Invite from "../models/Invite.ts";
 import User from "../models/User.ts";
 import Workspace from "../models/Workspace.ts";
+import { resolveWorkspaceId } from "../middleware/workspace.middleware.ts";
 import type { AuthRequest } from "../types/auth.types.ts";
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-
-/**
- * Resolve the workspaceId for an admin.
- * Tries JWT first (fast path for new tokens), falls back to DB for old tokens
- * that pre-date the workspace refactor.
- */
-const resolveWorkspaceId = async (
-  userId: string,
-  jwtWorkspaceId?: string
-): Promise<string | null> => {
-  if (jwtWorkspaceId) return jwtWorkspaceId;
-
-  // Fallback: look up user in DB
-  const user = await User.findById(userId).select("workspaceId");
-  return user?.workspaceId?.toString() ?? null;
-};
 
 // ── POST /api/invites ─────────────────────────────────────────────────────────
 

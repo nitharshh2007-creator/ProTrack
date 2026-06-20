@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Mail, Search as SearchIcon, UserCircle2, Trash2, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";

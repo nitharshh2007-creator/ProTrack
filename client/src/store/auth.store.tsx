@@ -1,5 +1,7 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import type { AuthUser, UserRole } from "@/types";
+import { authService } from "@/services";
 
 interface AuthState {
   user: AuthUser | null;
@@ -9,6 +11,7 @@ interface AuthState {
   login: (token: string, user: AuthUser) => void;
   logout: () => void;
   hasRole: (...roles: UserRole[]) => boolean;
+  updateUser: (updates: Partial<AuthUser>) => void;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -23,7 +26,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storedUser = localStorage.getItem("user");
     if (storedToken && storedUser) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser) as AuthUser);
+      const parsed = JSON.parse(storedUser) as AuthUser;
+      setUser(parsed);
+      // Heal stale tokens missing workspaceId by fetching fresh data from DB
+      if (!parsed.workspaceId) {
+        authService.getMe().then((fresh) => {
+          const updated = { ...parsed, workspaceId: fresh.workspaceId };
+          localStorage.setItem("user", JSON.stringify(updated));
+          setUser(updated);
+        }).catch(() => { /* token invalid — interceptor will redirect */ });
+      }
     }
     setIsLoading(false);
   }, []);
@@ -45,9 +57,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const hasRole = (...roles: UserRole[]) =>
     user !== null && roles.includes(user.role);
 
+  const updateUser = (updates: Partial<AuthUser>) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, ...updates };
+      localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, token, isAuthenticated: !!token, isLoading, login, logout, hasRole }}
+      value={{ user, token, isAuthenticated: !!token, isLoading, login, logout, hasRole, updateUser }}
     >
       {children}
     </AuthContext.Provider>

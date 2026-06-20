@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { Activity, Briefcase, Users, CheckCircle, TrendingUp, Clock, Sparkles } from "lucide-react";
-import { useNavigate } from "@tanstack/router";
+import { Activity, Briefcase, Users, CheckCircle, Clock, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
@@ -42,9 +42,9 @@ export const AdminDashboardPage = () => {
   useEffect(() => {
     if (!isLoading) {
       if (!isAuthenticated) {
-        navigate({ to: "/login" });
+        navigate("/login");
       } else if (!hasRole("admin")) {
-        navigate({ to: "/employee/dashboard" });
+        navigate("/employee/dashboard");
       }
     }
   }, [hasRole, isAuthenticated, isLoading, navigate]);
@@ -59,11 +59,11 @@ export const AdminDashboardPage = () => {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-[32px] border border-white/10 bg-glass p-8 shadow-card backdrop-blur-xl">
+      <div className="rounded-[32px] border border-white/8 bg-slate-900/75 p-8 shadow-2xl backdrop-blur-[20px]">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <p className="mb-2 text-sm uppercase tracking-[0.3em] text-slate-400">Admin dashboard</p>
-            <h1 className="text-4xl font-semibold text-slate-50">Welcome back, lead manager.</h1>
+            <p className="mb-2 text-sm uppercase tracking-[0.3em] font-bold text-blue-400">Admin dashboard</p>
+            <h1 className="text-4xl font-semibold text-white">Welcome back, lead manager.</h1>
             <p className="mt-3 max-w-2xl text-sm text-slate-400">
               Track project velocity, team health and executive metrics in a single premium command center.
             </p>
@@ -83,11 +83,11 @@ export const AdminDashboardPage = () => {
         {stats.map((item) => {
           const Icon = item.icon;
           return (
-            <Card key={item.label} className="p-6">
+            <Card key={item.label} className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm uppercase tracking-[0.24em] text-slate-400">{item.label}</p>
-                  <p className="mt-3 text-3xl font-semibold text-slate-100">{item.value}</p>
+                  <p className="mt-3 text-3xl font-semibold text-white">{item.value}</p>
                 </div>
                 <div className={`rounded-3xl bg-gradient-to-br ${item.accent} p-4 text-white shadow-glow`}>
                   <Icon className="h-6 w-6" />
@@ -99,11 +99,11 @@ export const AdminDashboardPage = () => {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
-        <Card className="space-y-6">
+        <Card className="space-y-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
           <div className="flex items-center justify-between gap-6">
             <div>
               <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Project progress</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-50">Delivery velocity</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Delivery velocity</h2>
             </div>
             <Badge variant="info">Rolling 30d</Badge>
           </div>
@@ -125,11 +125,11 @@ export const AdminDashboardPage = () => {
           </div>
         </Card>
 
-        <Card className="space-y-6">
+        <Card className="space-y-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
           <div className="flex items-center justify-between gap-6">
             <div>
               <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Team productivity</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-50">Monthly performance</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Monthly performance</h2>
             </div>
             <Badge variant="success">High impact</Badge>
           </div>
@@ -150,11 +150,11 @@ export const AdminDashboardPage = () => {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_0.7fr]">
-        <Card className="space-y-5">
+        <Card className="space-y-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Overview</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-50">Project health feed</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Project health feed</h2>
             </div>
             <div className="inline-flex items-center gap-2 rounded-3xl bg-slate-900/80 px-4 py-2 text-sm text-slate-300">
               <Clock className="h-4 w-4 text-slate-300" /> Live updates
@@ -162,15 +162,15 @@ export const AdminDashboardPage = () => {
           </div>
           <div className="space-y-4">
             {recentActivity.map((activity) => (
-              <div key={activity.label} className="rounded-3xl border border-white/10 bg-slate-950/60 px-5 py-4 transition hover:border-violet-400/30 hover:bg-slate-900/80">
-                <p className="text-sm text-slate-100">{activity.label}</p>
+              <div key={activity.label} className="rounded-3xl border border-white/8 bg-slate-950/40 px-5 py-4 transition hover:border-violet-400/30 hover:bg-slate-900/80">
+                <p className="text-sm text-white">{activity.label}</p>
                 <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500">{activity.time}</p>
               </div>
             ))}
           </div>
         </Card>
 
-        <Card className="space-y-5">
+        <Card className="space-y-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Effort score</p>
@@ -190,16 +190,16 @@ export const AdminDashboardPage = () => {
           </div>
           <div className="grid gap-3">
             <div className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-900/70 px-4 py-3">
-              <span className="text-sm text-slate-300">Cycle time</span>
-              <span className="font-semibold text-slate-50">2.8 days</span>
+              <span className="text-sm text-slate-400">Cycle time</span>
+              <span className="font-semibold text-white">2.8 days</span>
             </div>
             <div className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-900/70 px-4 py-3">
-              <span className="text-sm text-slate-300">Review speed</span>
-              <span className="font-semibold text-slate-50">78%</span>
+              <span className="text-sm text-slate-400">Review speed</span>
+              <span className="font-semibold text-white">78%</span>
             </div>
             <div className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-900/70 px-4 py-3">
-              <span className="text-sm text-slate-300">Client satisfaction</span>
-              <span className="font-semibold text-slate-50">4.9 / 5</span>
+              <span className="text-sm text-slate-400">Client satisfaction</span>
+              <span className="font-semibold text-white">4.9 / 5</span>
             </div>
           </div>
         </Card>

@@ -20,7 +20,7 @@ export const GanttPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) projectService.getTimeline(id).then(setItems).finally(() => setLoading(false));
+    if (id) projectService.getTimeline(id).then((data) => setItems(data.tasks)).finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return <div className="flex justify-center pt-20"><Spinner className="h-8 w-8" /></div>;
