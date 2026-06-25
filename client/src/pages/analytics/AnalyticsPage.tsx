@@ -2,13 +2,15 @@ import { useEffect, useState, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import {
   BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie,
+  XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie, CartesianGrid
 } from "recharts";
 import { analyticsService, type AnalyticsData, type AnalyticsDataAdmin, type AnalyticsDataEmployee } from "@/services";
 import { Spinner } from "@/components/ui/Spinner";
 import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/store/auth.store";
 import { getSocket } from "@/lib/socket";
+import { Clock, Calendar, AlertCircle, Activity } from "lucide-react";
+
 
 const STATUS_COLORS: Record<string, string> = {
   Todo: "#94a3b8",
@@ -30,10 +32,10 @@ const StatCard: React.FC<{ label: string; value: number | string; color: string;
   color,
   description,
 }) => (
-  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300" style={{ borderTop: `4px solid ${color}` }}>
-    <p className="text-xs uppercase tracking-[0.28em] text-slate-500 dark:text-slate-400 mb-3">{label}</p>
-    <p className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">{value}</p>
-    {description && <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>}
+  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-slate-700/50" style={{ borderTop: `4px solid ${color}` }}>
+    <p className="text-xs uppercase tracking-[0.28em] text-slate-400 mb-3">{label}</p>
+    <p className="text-3xl font-bold text-slate-50 mb-2">{value}</p>
+    {description && <p className="text-sm text-slate-400">{description}</p>}
   </div>
 );
 
@@ -114,16 +116,16 @@ export const AnalyticsPage = () => {
   return (
     <div className="space-y-8">
       {/* HERO SECTION */}
-      <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-[#101728] px-8 py-12 shadow-xl">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.25),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(124,58,237,0.18),_transparent_35%)]" />
-        <div className="relative space-y-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+      <div className="premium-hero">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
+        <div className="relative space-y-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">
             {isAdmin ? "Workspace" : "Personal"}
           </p>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">
             {isAdmin ? "Analytics Dashboard" : "My Analytics"}
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm md:text-base text-[#CBD5E1] max-w-2xl leading-relaxed">
             {isAdmin
               ? "Track project performance, task completion and team productivity."
               : "Track your assigned projects and task performance."}
@@ -133,14 +135,14 @@ export const AnalyticsPage = () => {
 
       {/* PROJECT FILTER (ADMIN ONLY) */}
       {isAdmin && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md">
-          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 block uppercase tracking-wider">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+          <label className="text-sm font-semibold text-slate-350 mb-3 block uppercase tracking-wider">
             Filter by Project
           </label>
           <select
             value={selectedProject}
             onChange={(e) => setSelectedProject(e.target.value)}
-            className="w-full md:w-64 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            className="w-full md:w-64 rounded-lg border border-slate-800 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 outline-none transition hover:bg-slate-900 focus:ring-2 focus:ring-slate-800"
           >
             <option value="all">All Projects</option>
             {projects.map((p) => (
@@ -227,13 +229,13 @@ export const AnalyticsPage = () => {
       {isAdmin && (
         <>
           {/* Task Status Distribution */}
-          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
+          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="mb-4">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Distribution</p>
-              <h2 className="mt-2 text-xl font-semibold text-slate-900">Task Status</h2>
+              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Distribution</p>
+              <h2 className="mt-2 text-xl font-semibold text-slate-100">Task Status</h2>
             </div>
             {adminData.statusDistribution.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                 No data available.
               </div>
             ) : (
@@ -248,7 +250,7 @@ export const AnalyticsPage = () => {
                       outerRadius={150}
                       paddingAngle={2}
                       dataKey="count"
-                      label={({ status, percent }) =>
+                      label={({ status, percent }: any) =>
                         `${status} ${((percent ?? 0) * 100).toFixed(0)}%`
                       }
                     >
@@ -258,7 +260,7 @@ export const AnalyticsPage = () => {
                     </Pie>
                     <Tooltip
                       formatter={(value) => [`${value} tasks`, "Tasks"]}
-                      contentStyle={{ backgroundColor: "#f8fafc", borderRadius: "8px" }}
+                      contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", color: "#f8fafc" }}
                     />
                     <Legend />
                   </PieChart>
@@ -269,27 +271,28 @@ export const AnalyticsPage = () => {
 
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Project Progress Comparison */}
-            <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
+            <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
               <div className="mb-4">
-                <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Progress</p>
-                <h2 className="mt-2 text-xl font-semibold text-slate-900">Project Comparison</h2>
+                <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Progress</p>
+                <h2 className="mt-2 text-xl font-semibold text-slate-100">Project Comparison</h2>
               </div>
               {adminData.projectProgressComparison.length === 0 ? (
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+                <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                   No projects yet.
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={adminData.projectProgressComparison}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                     <XAxis
                       dataKey="projectName"
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
                       angle={-45}
                       textAnchor="end"
                       height={80}
                     />
-                    <YAxis label={{ value: "Completion %", angle: -90, position: "insideLeft" }} />
-                    <Tooltip />
+                    <YAxis tick={{ fill: "#94a3b8" }} label={{ value: "Completion %", angle: -90, position: "insideLeft", fill: "#94a3b8" }} />
+                    <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", color: "#f8fafc" }} />
                     <Bar dataKey="completionPercent" fill="#3b82f6" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -297,21 +300,22 @@ export const AnalyticsPage = () => {
             </Card>
 
             {/* Priority Distribution */}
-            <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
+            <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
               <div className="mb-4">
-                <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Distribution</p>
-                <h2 className="mt-2 text-xl font-semibold text-slate-900">Task Priority</h2>
+                <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Distribution</p>
+                <h2 className="mt-2 text-xl font-semibold text-slate-100">Task Priority</h2>
               </div>
               {adminData.priorityDistribution.length === 0 ? (
-                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+                <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                   No data available.
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={adminData.priorityDistribution}>
-                    <XAxis dataKey="priority" />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                    <XAxis dataKey="priority" tick={{ fill: "#94a3b8" }} />
+                    <YAxis tick={{ fill: "#94a3b8" }} />
+                    <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", color: "#f8fafc" }} />
                     <Bar dataKey="count" fill="#f59e0b" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -320,22 +324,22 @@ export const AnalyticsPage = () => {
           </div>
 
           {/* Team Workload Distribution */}
-          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
+          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="mb-4">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500\">Team</p>
-              <h2 className="mt-2 text-xl font-semibold text-slate-900\">Workload Distribution</h2>
+              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Team</p>
+              <h2 className="mt-2 text-xl font-semibold text-slate-100">Workload Distribution</h2>
             </div>
             {adminData.workloadDistribution.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                 No team members with tasks.
               </div>
             ) : (
               <div className="space-y-3">
                 {adminData.workloadDistribution.map((item, idx) => (
-                  <div key={item.employeeId} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200/50">
-                    <span className="font-medium text-slate-900">{item.employeeName}</span>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold"
-                      style={{ background: PROJECT_COLORS[idx % PROJECT_COLORS.length] + "20", color: PROJECT_COLORS[idx % PROJECT_COLORS.length] }}>
+                  <div key={item.employeeId} className="flex items-center justify-between p-3 rounded-lg bg-slate-950 border border-slate-850">
+                    <span className="font-medium text-slate-200">{item.employeeName}</span>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border"
+                      style={{ background: PROJECT_COLORS[idx % PROJECT_COLORS.length] + "15", color: PROJECT_COLORS[idx % PROJECT_COLORS.length], borderColor: PROJECT_COLORS[idx % PROJECT_COLORS.length] + "30" }}>
                       {item.taskCount} tasks
                     </span>
                   </div>
@@ -345,26 +349,27 @@ export const AnalyticsPage = () => {
           </Card>
 
           {/* Completion Trend */}
-          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
+          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="mb-4">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Trend</p>
-              <h2 className="mt-2 text-xl font-semibold text-slate-900">Weekly Completion</h2>
+              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Trend</p>
+              <h2 className="mt-2 text-xl font-semibold text-slate-100">Weekly Completion</h2>
             </div>
             {adminData.completionTrend.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                 No completion data yet.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={adminData.completionTrend}>
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis dataKey="date" tick={{ fill: "#94a3b8" }} />
+                  <YAxis tick={{ fill: "#94a3b8" }} />
+                  <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", color: "#f8fafc" }} />
                   <Line
                     type="monotone"
                     dataKey="count"
                     stroke="#22c55e"
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     dot={{ fill: "#22c55e", r: 4 }}
                   />
                 </LineChart>
@@ -373,23 +378,34 @@ export const AnalyticsPage = () => {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
-            <div className="mb-4">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Activity</p>
-              <h2 className="mt-2 text-xl font-semibold text-slate-900">Recent Updates</h2>
+          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Activity</p>
+                <h2 className="mt-2 text-xl font-bold text-slate-100">Recent Updates</h2>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                <Activity className="h-5 w-5" />
+              </div>
             </div>
             {adminData.recentActivity.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                 No recent activity.
               </div>
             ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3.5 max-h-96 overflow-y-auto pr-1">
                 {adminData.recentActivity.map((activity, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-slate-50 border border-slate-200/50">
-                    <p className="font-medium text-slate-900">{activity.description}</p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {new Date(activity.timestamp).toLocaleString()}
-                    </p>
+                  <div key={idx} className="group bg-slate-950/40 hover:bg-slate-900/60 border border-slate-850 hover:border-slate-800 transition-all duration-300 p-4 rounded-xl flex items-start gap-3.5">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 mt-0.5">
+                      <Clock className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-slate-200 group-hover:text-white transition-colors text-sm leading-relaxed">{activity.description}</p>
+                      <span className="flex items-center gap-1.5 text-xs text-slate-400 mt-2 font-mono">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {new Date(activity.timestamp).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -397,30 +413,56 @@ export const AnalyticsPage = () => {
           </Card>
 
           {/* Upcoming Deadlines */}
-          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
-            <div className="mb-4">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Deadlines</p>
-              <h2 className="mt-2 text-xl font-semibold text-slate-900">Upcoming</h2>
+          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Deadlines</p>
+                <h2 className="mt-2 text-xl font-bold text-slate-100">Upcoming</h2>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <AlertCircle className="h-5 w-5" />
+              </div>
             </div>
             {adminData.upcomingDeadlines.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                 No upcoming deadlines.
               </div>
             ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {adminData.upcomingDeadlines.map((deadline, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-slate-50 border border-slate-200/50">
-                    <p className="font-medium text-slate-900">{deadline.title}</p>
-                    <div className="flex justify-between items-center mt-2">
-                      <p className="text-xs text-slate-600">
-                        {new Date(deadline.dueDate).toLocaleDateString()}
-                      </p>
-                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-50 text-blue-700">
-                        {deadline.status}
-                      </span>
+              <div className="space-y-3.5 max-h-96 overflow-y-auto pr-1">
+                {adminData.upcomingDeadlines.map((deadline, idx) => {
+                  const diffTime = new Date(deadline.dueDate).getTime() - new Date().getTime();
+                  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                  return (
+                    <div key={idx} className="group bg-slate-950/40 hover:bg-slate-900/60 border border-slate-850 hover:border-slate-800 transition-all duration-300 p-4 rounded-xl flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          <Calendar className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-200 group-hover:text-white transition-colors text-sm truncate">{deadline.title}</p>
+                          <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-1.5 font-mono">
+                            <Clock className="h-3.5 w-3.5" />
+                            {new Date(deadline.dueDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {days < 0 ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-red-950/30 text-red-400 border border-red-900/30">Overdue</span>
+                        ) : days === 0 ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-amber-950/30 text-amber-400 border border-amber-900/30">Today</span>
+                        ) : days === 1 ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-amber-950/30 text-amber-400 border border-amber-900/30">Tomorrow</span>
+                        ) : (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-slate-900 text-slate-400 border border-slate-800">{days}d left</span>
+                        )}
+                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-950/40 text-blue-400 border border-blue-900/35">
+                          {deadline.status}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </Card>
@@ -431,21 +473,22 @@ export const AnalyticsPage = () => {
       {!isAdmin && (
         <>
           {/* Personal Task Status Distribution */}
-          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
+          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="mb-4">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Distribution</p>
-              <h2 className="mt-2 text-xl font-semibold text-slate-900">Your Task Status</h2>
+              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Distribution</p>
+              <h2 className="mt-2 text-xl font-semibold text-slate-100">Your Task Status</h2>
             </div>
             {employeeData.personalStatusDistribution.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                 No data available.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={employeeData.personalStatusDistribution}>
-                  <XAxis dataKey="status" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis dataKey="status" tick={{ fill: "#94a3b8" }} />
+                  <YAxis tick={{ fill: "#94a3b8" }} />
+                  <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", color: "#f8fafc" }} />
                   <Bar dataKey="count" radius={[8, 8, 0, 0]}>
                     {employeeData.personalStatusDistribution.map((entry) => (
                       <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? "#94a3b8"} />
@@ -457,26 +500,27 @@ export const AnalyticsPage = () => {
           </Card>
 
           {/* Personal Completion Trend */}
-          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
+          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
             <div className="mb-4">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Trend</p>
-              <h2 className="mt-2 text-xl font-semibold text-slate-900">Your Completion Trend</h2>
+              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Trend</p>
+              <h2 className="mt-2 text-xl font-semibold text-slate-100">Your Completion Trend</h2>
             </div>
             {employeeData.completionTrend.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                 No completion data yet.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={employeeData.completionTrend}>
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis dataKey="date" tick={{ fill: "#94a3b8" }} />
+                  <YAxis tick={{ fill: "#94a3b8" }} />
+                  <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", color: "#f8fafc" }} />
                   <Line
                     type="monotone"
                     dataKey="count"
                     stroke="#22c55e"
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     dot={{ fill: "#22c55e", r: 4 }}
                   />
                 </LineChart>
@@ -485,30 +529,56 @@ export const AnalyticsPage = () => {
           </Card>
 
           {/* Personal Deadlines */}
-          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
-            <div className="mb-4">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Deadlines</p>
-              <h2 className="mt-2 text-xl font-semibold text-slate-900">Your Upcoming Deadlines</h2>
+          <Card className="p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Deadlines</p>
+                <h2 className="mt-2 text-xl font-bold text-slate-100">Your Upcoming Deadlines</h2>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <AlertCircle className="h-5 w-5" />
+              </div>
             </div>
             {employeeData.deadlines.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              <div className="rounded-3xl border border-slate-800 bg-slate-950 p-10 text-center text-sm text-slate-400">
                 No upcoming deadlines.
               </div>
             ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {employeeData.deadlines.map((deadline, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-slate-50 border border-slate-200/50">
-                    <p className="font-medium text-slate-900">{deadline.title}</p>
-                    <div className="flex justify-between items-center mt-2">
-                      <p className="text-xs text-slate-600">
-                        {new Date(deadline.dueDate).toLocaleDateString()}
-                      </p>
-                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-50 text-blue-700">
-                        {deadline.status}
-                      </span>
+              <div className="space-y-3.5 max-h-96 overflow-y-auto pr-1">
+                {employeeData.deadlines.map((deadline, idx) => {
+                  const diffTime = new Date(deadline.dueDate).getTime() - new Date().getTime();
+                  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                  return (
+                    <div key={idx} className="group bg-slate-950/40 hover:bg-slate-900/60 border border-slate-850 hover:border-slate-800 transition-all duration-300 p-4 rounded-xl flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          <Calendar className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-200 group-hover:text-white transition-colors text-sm truncate">{deadline.title}</p>
+                          <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-1.5 font-mono">
+                            <Clock className="h-3.5 w-3.5" />
+                            {new Date(deadline.dueDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {days < 0 ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-red-950/30 text-red-400 border border-red-900/30">Overdue</span>
+                        ) : days === 0 ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-amber-950/30 text-amber-400 border border-amber-900/30">Today</span>
+                        ) : days === 1 ? (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-amber-950/30 text-amber-400 border border-amber-900/30">Tomorrow</span>
+                        ) : (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-slate-900 text-slate-400 border border-slate-800">{days}d left</span>
+                        )}
+                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-950/40 text-blue-400 border border-blue-900/35">
+                          {deadline.status}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </Card>

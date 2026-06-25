@@ -190,7 +190,7 @@ export const AdminEmployeesPage = () => {
           <select
             value={selectedProjectId || ""}
             onChange={(e) => setSelectedProjectId(e.target.value || null)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 flex-1 max-w-xs"
+            className="rounded-lg border-0 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-slate-700 flex-1 max-w-xs"
           >
             <option value="">All Projects</option>
             {projectsLoading ? (

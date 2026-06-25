@@ -24,7 +24,8 @@ const statusVariant = {
 const priorityVariant = { Low: "default", Medium: "warning", High: "danger" } as const;
 
 const statusDot: Record<string, string> = {
-  Todo: "bg-slate-400", "In Progress": "bg-blue-500",
+  Todo: "bg-white border border-slate-200 dark:bg-slate-800 dark:border-slate-700",
+  "In Progress": "bg-blue-500",
   Review: "bg-amber-500", Blocked: "bg-red-500", Completed: "bg-emerald-500",
 };
 

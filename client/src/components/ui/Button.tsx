@@ -9,10 +9,10 @@ interface ButtonProps extends Omit<HTMLMotionProps<"button">, keyof ButtonHTMLAt
 }
 
 const variants: Record<string, string> = {
-  primary:   "gradient-primary text-white shadow-lg hover:opacity-90 glow-blue",
-  secondary: "glass text-slate-300 hover:text-white hover:border-white/20",
+  primary:   "gradient-primary text-white shadow-lg hover:opacity-95",
+  secondary: "bg-[#1A2235] border border-white/5 text-[#CBD5E1] hover:text-[#F8FAFC] hover:bg-[#1A2235]/80 hover:border-white/10",
   danger:    "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:text-red-300",
-  ghost:     "text-slate-400 hover:text-white hover:bg-white/5",
+  ghost:     "text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5",
 };
 
 export const Button = ({

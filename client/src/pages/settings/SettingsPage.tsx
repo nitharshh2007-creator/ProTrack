@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Palette, Bell, Save } from "lucide-react";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { settingsService } from "@/services";
 import type { SettingsData } from "@/services";
@@ -10,7 +9,7 @@ import { useTheme } from "@/store/theme.store";
 type NotificationKey = keyof SettingsData["notifications"];
 
 export const SettingsPage = () => {
-  const { theme, density, updateTheme, updateDensity } = useTheme();
+  const { density, updateDensity } = useTheme();
   const [notifications, setNotifications] = useState<SettingsData["notifications"]>({
     email: true,
     projectUpdates: true,
@@ -54,7 +53,7 @@ export const SettingsPage = () => {
   if (isLoading) {
     return (
       <div className="space-y-8">
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-8 shadow-sm hover:shadow-md">
+        <div className="rounded-[18px] border border-white/5 bg-[#111827] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
           <div className="animate-pulse">
             <div className="h-4 bg-slate-700 rounded w-1/4 mb-2"></div>
             <div className="h-8 bg-slate-700 rounded w-1/2 mb-4"></div>
@@ -71,13 +70,13 @@ export const SettingsPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-[#101728] px-8 py-12 shadow-xl"
+        className="premium-hero"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.25),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(124,58,237,0.18),_transparent_35%)]" />
-        <div className="relative space-y-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Workspace Settings</p>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Settings</h1>
-          <p className="text-sm text-slate-400">Customize your ProTrack experience</p>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
+        <div className="relative space-y-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">Workspace Settings</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Settings</h1>
+          <p className="text-sm md:text-base text-[#CBD5E1] max-w-2xl leading-relaxed">Customize your ProTrack experience</p>
         </div>
       </motion.div>
 
@@ -87,14 +86,14 @@ export const SettingsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-sm hover:shadow-md"
+          className="rounded-[18px] border border-white/5 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
         >
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-violet-500/20 rounded-lg border border-violet-500/30">
               <Palette className="h-5 w-5 text-violet-400" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Appearance</h2>
+              <h2 className="text-xl font-semibold text-[#F8FAFC]">Appearance</h2>
               <p className="text-slate-400">Customize the look and feel of your workspace</p>
             </div>
           </div>
@@ -103,27 +102,9 @@ export const SettingsPage = () => {
             {/* Theme Selection */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-3">Theme</label>
-              <div className="grid grid-cols-3 gap-3">
-                {(["light", "dark", "system"] as const).map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => updateTheme(option)}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                      theme === option
-                        ? "border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/20"
-                        : "border-slate-700 bg-slate-800/50 hover:border-slate-600 hover:shadow-lg hover:shadow-slate-500/10"
-                    }`}
-                  >
-                    <p className={`font-medium capitalize ${theme === option ? "text-blue-300" : "text-slate-300"}`}>
-                      {option}
-                    </p>
-                    <p className="text-sm text-slate-500 mt-1">
-                      {option === "system" && "Follow device preferences"}
-                      {option === "dark" && "Dark interface"}
-                      {option === "light" && "Light interface"}
-                    </p>
-                  </button>
-                ))}
+              <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50">
+                <p className="font-semibold text-blue-400">Dark Mode (Default)</p>
+                <p className="text-sm text-slate-400 mt-1">ProTrack now runs exclusively in a high-contrast premium dark theme to ensure visual consistency.</p>
               </div>
             </div>
 
@@ -179,14 +160,14 @@ export const SettingsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-            className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-sm hover:shadow-md"
+            className="rounded-[18px] border border-white/5 bg-[#111827] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
         >
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-cyan-500/20 rounded-lg border border-cyan-500/30">
               <Bell className="h-5 w-5 text-cyan-400" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Notifications</h2>
+              <h2 className="text-xl font-semibold text-[#F8FAFC]">Notifications</h2>
               <p className="text-slate-400">Choose which alerts to receive</p>
             </div>
           </div>

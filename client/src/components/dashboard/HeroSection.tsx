@@ -32,15 +32,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ totalProjects, totalTa
         <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm text-slate-400 mb-1">{greeting}, {user?.name?.split(" ")[0]} 👋</p>
-            <h1 className="text-3xl font-extrabold text-slate-950">Your workspace at a glance</h1>
+            <h1 className="text-3xl font-extrabold text-[#F8FAFC]">Your workspace at a glance</h1>
             <p className="mt-2 text-sm text-slate-400">
               Keep track of projects and tasks. Stay productive.
             </p>
           </div>
           {/* Avatar */}
-          {user?.avatarUrl && (
+          {(user as any)?.avatarUrl && (
             <img
-              src={user.avatarUrl}
+              src={(user as any).avatarUrl}
               alt="avatar"
               className="w-16 h-16 rounded-full object-cover border border-white/20 shadow-lg"
             />
@@ -48,21 +48,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ totalProjects, totalTa
         </div>
         <div className="flex items-center gap-8 mt-6">
           <div className="text-center">
-            <p className="text-3xl font-extrabold text-slate-950">
+            <p className="text-3xl font-extrabold text-[#F8FAFC]">
               <AnimatedCounter to={completionPct} />%
             </p>
             <p className="text-xs text-slate-400 mt-0.5">Completion</p>
           </div>
-          <div className="h-12 w-px bg-slate-200" />
+          <div className="h-12 w-px bg-white/10" />
           <div className="text-center">
-            <p className="text-3xl font-extrabold text-slate-950">
+            <p className="text-3xl font-extrabold text-[#F8FAFC]">
               <AnimatedCounter to={totalProjects} />
             </p>
             <p className="text-xs text-slate-400 mt-0.5">Projects</p>
           </div>
-          <div className="h-12 w-px bg-slate-200" />
+          <div className="h-12 w-px bg-white/10" />
           <div className="text-center">
-            <p className="text-3xl font-extrabold text-slate-950">
+            <p className="text-3xl font-extrabold text-[#F8FAFC]">
               <AnimatedCounter to={totalTasks} />
             </p>
             <p className="text-xs text-slate-400 mt-0.5">Tasks</p>
@@ -74,7 +74,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ totalProjects, totalTa
             View Analytics
             <ArrowRight className="inline-block ml-1 h-4 w-4" />
           </button>
-          <button className="bg-white/10 text-slate-900 px-5 py-2 rounded-full border border-white/20 hover:bg-white/20 transition">
+          <button className="bg-white/10 text-white px-5 py-2 rounded-full border border-white/20 hover:bg-white/20 transition">
             Create Project
             <ArrowRight className="inline-block ml-1 h-4 w-4" />
           </button>

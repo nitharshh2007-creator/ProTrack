@@ -1,18 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
-import { taskService, commentService, userService } from "@/services";
+import { commentService, userService } from "@/services";
 import type { Task, Comment, User } from "@/types";
 import { 
-  TrendingUp, 
   Users, 
   Calendar, 
-  Clock,
-  MessageSquare,
-  FileText,
-  Image,
-  Video,
-  Music,
+  FileText, 
+  Image, 
+  Video, 
+  Music, 
   Activity
 } from "lucide-react";
 
@@ -225,17 +222,16 @@ export const WorkspaceIntelligence = ({ tasks, stats, commentCounts }: Workspace
     };
   }, [tasks.length]);
 
-  const totalComments = Object.values(commentCounts).reduce((sum, count) => sum + count, 0);
 
   if (loading && tasks.length > 0) {
     return (
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="fixed right-6 top-32 w-80 rounded-[28px] border backdrop-blur-[20px] shadow-[0_20px_50px_rgba(15,23,42,0.08)] z-10 hidden xl:block p-6"
+        className="fixed right-6 top-32 w-80 rounded-[18px] border backdrop-blur-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.35)] z-10 hidden xl:block p-6"
         style={{
-          background: 'rgba(255,255,255,0.85)',
-          borderColor: 'rgba(255,255,255,0.6)'
+          background: '#111827',
+          borderColor: 'rgba(255,255,255,0.08)'
         }}
       >
         <div className="flex items-center justify-center py-8">
@@ -250,10 +246,10 @@ export const WorkspaceIntelligence = ({ tasks, stats, commentCounts }: Workspace
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.3 }}
-      className="fixed right-6 top-32 w-80 rounded-[28px] border backdrop-blur-[20px] shadow-[0_20px_50px_rgba(15,23,42,0.08)] z-10 hidden xl:block"
+      className="fixed right-6 top-32 w-80 rounded-[18px] border backdrop-blur-[20px] shadow-[0_10px_30px_rgba(0,0,0,0.35)] z-10 hidden xl:block"
       style={{
-        background: 'rgba(255,255,255,0.85)',
-        borderColor: 'rgba(255,255,255,0.6)',
+        background: '#111827',
+        borderColor: 'rgba(255,255,255,0.08)',
         position: 'sticky',
         top: '24px'
       }}

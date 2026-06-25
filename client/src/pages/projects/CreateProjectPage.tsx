@@ -4,9 +4,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle, Rocket, Calendar, AlertCircle, Edit } from "lucide-react";
 import { projectService } from "@/services";
 import type { CreateProjectPayload } from "@/types";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Button } from "@/components/ui/Button";
 import { getStoredJson, setStoredJson } from "@/lib/storage";
 import { useAuth } from "@/store/auth.store";
 
@@ -80,7 +77,7 @@ export const CreateProjectPage = () => {
             status: project.status,
             priority: project.priority || 'Medium',
             deadline: project.deadline ? project.deadline.split('T')[0] : '',
-            coverImage: project.coverImage,
+            coverImage: project.coverImage || undefined,
             teamMembers: mIds,
           };
           setForm(formData);
@@ -174,7 +171,7 @@ export const CreateProjectPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -183,72 +180,74 @@ export const CreateProjectPage = () => {
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-lg mx-auto mb-4">
             <Edit className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">Loading Project</h2>
-          <p className="text-slate-600">Fetching project details...</p>
+          <h2 className="text-xl font-semibold text-white mb-2">Loading Project</h2>
+          <p className="text-slate-400">Fetching project details...</p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-50 pb-12">
+    <div className="min-h-screen bg-transparent pb-12">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative space-y-6 mb-12 pt-8 px-6"
+        className="premium-hero mb-12"
       >
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/15 via-blue-400/5 to-transparent rounded-full blur-3xl -z-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
 
-        <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-lg">
-            {isEditing ? <Edit className="h-7 w-7 text-white" /> : <Rocket className="h-7 w-7 text-white" />}
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-555 shadow-lg shrink-0">
+              {isEditing ? <Edit className="h-7 w-7 text-white" /> : <Rocket className="h-7 w-7 text-white" />}
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">
+                {isEditing ? 'Edit' : 'Launch'}
+              </p>
+              <h1 className="text-3xl font-extrabold text-white tracking-tight leading-none mt-2">
+                {isEditing ? 'Edit Project' : 'Create New Project'}
+              </h1>
+              <p className="mt-3 text-[#CBD5E1] max-w-2xl text-sm leading-relaxed">
+                {isEditing 
+                  ? 'Update your project details, settings and cover image.'
+                  : 'Build, organize and manage your team\'s work from a single collaborative workspace.'
+                }
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">
-              {isEditing ? 'Edit' : 'Launch'}
-            </p>
-            <h1 className="text-4xl font-bold text-slate-900">
-              {isEditing ? 'Edit Project' : 'Create New Project'}
-            </h1>
-            <p className="mt-2 text-slate-600 max-w-2xl">
-              {isEditing 
-                ? 'Update your project details, settings and cover image.'
-                : 'Build, organize and manage your team\'s work from a single collaborative workspace.'
-              }
-            </p>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-3 max-w-md">
-          {stepIndicators.map((indicator, idx) => (
-            <motion.div key={indicator.num} className="flex items-center gap-3 flex-1">
-              <motion.div
-                whileHover={step >= indicator.num ? { scale: 1.1 } : {}}
-                onClick={() => step > indicator.num && setStep(indicator.num)}
-                className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition-all cursor-pointer ${
-                  step >= indicator.num
-                    ? "bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30"
-                    : "bg-slate-200 text-slate-500"
-                }`}
-              >
-                {step > indicator.num ? <CheckCircle className="h-5 w-5" /> : indicator.num}
-              </motion.div>
-              <div className={`text-xs font-medium ${step >= indicator.num ? "text-slate-900" : "text-slate-500"}`}>
-                {indicator.label}
-              </div>
-              {idx < stepIndicators.length - 1 && (
+          <div className="flex items-center gap-3 w-full md:w-auto md:max-w-md shrink-0">
+            {stepIndicators.map((indicator, idx) => (
+              <motion.div key={indicator.num} className="flex items-center gap-3 flex-1">
                 <motion.div
-                  className={`flex-1 h-1 rounded-full transition-colors ${
-                    step > indicator.num ? "bg-blue-600" : "bg-slate-200"
+                  whileHover={step >= indicator.num ? { scale: 1.1 } : {}}
+                  onClick={() => step > indicator.num && setStep(indicator.num)}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition-all cursor-pointer ${
+                    step >= indicator.num
+                      ? "bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30"
+                      : "bg-slate-800 text-slate-400 border border-slate-700"
                   }`}
-                />
-              )}
-            </motion.div>
-          ))}
+                >
+                  {step > indicator.num ? <CheckCircle className="h-5 w-5" /> : indicator.num}
+                </motion.div>
+                <div className={`text-xs font-semibold uppercase tracking-wider ${step >= indicator.num ? "text-white" : "text-slate-500"}`}>
+                  {indicator.label}
+                </div>
+                {idx < stepIndicators.length - 1 && (
+                  <motion.div
+                    className={`flex-1 h-[2px] transition-colors ${
+                      step > indicator.num ? "bg-blue-500" : "bg-slate-800"
+                    }`}
+                  />
+                )}
+              </motion.div>
+            ))}
+          </div>
         </div>
       </motion.div>
 
-      <form onSubmit={handleSubmit} className="mx-auto max-w-6xl px-6">
+      <form onSubmit={handleSubmit} className="mx-auto max-w-6xl">
         <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -261,32 +260,32 @@ export const CreateProjectPage = () => {
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <div className="rounded-2xl border border-slate-200/60 bg-white/80 p-8 shadow-lg backdrop-blur-[20px] space-y-6">
+              <div className="premium-card space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">Project Details</h2>
-                  <p className="mt-1 text-sm text-slate-600">Give your project a name and description</p>
+                  <h2 className="text-2xl font-bold text-slate-100">Project Details</h2>
+                  <p className="mt-1 text-sm text-slate-400">Give your project a name and description</p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-slate-700 block mb-2">Project Name</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Project Name</label>
                   <input
                     type="text"
                     placeholder="e.g., Project Aurora"
                     value={form.title}
                     onChange={setField("title")}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="premium-input"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-slate-700 block mb-2">Description</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Description</label>
                   <textarea
                     rows={6}
                     placeholder="Describe your project vision, goals, and expected outcome..."
                     value={form.description}
                     onChange={setField("description")}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none"
+                    className="premium-input resize-none"
                     required
                   />
                 </div>
@@ -295,7 +294,7 @@ export const CreateProjectPage = () => {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-xl border border-red-200/60 bg-red-50/80 px-4 py-3 text-sm text-red-700 flex items-center gap-2"
+                    className="rounded-xl border border-red-900/30 bg-red-950/20 px-4 py-3 text-sm text-red-400 flex items-center gap-2"
                   >
                     <AlertCircle className="h-4 w-4 shrink-0" />
                     {error}
@@ -310,19 +309,19 @@ export const CreateProjectPage = () => {
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <div className="rounded-2xl border border-slate-200/60 bg-white/80 p-8 shadow-lg backdrop-blur-[20px] space-y-6">
+              <div className="premium-card space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">Project Settings</h2>
-                  <p className="mt-1 text-sm text-slate-600">Configure status, priority, deadline and team</p>
+                  <h2 className="text-2xl font-bold text-slate-100">Project Settings</h2>
+                  <p className="mt-1 text-sm text-slate-400">Configure status, priority, deadline and team</p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="text-sm font-semibold text-slate-700 block mb-2">Status</label>
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Status</label>
                     <select
                       value={form.status}
                       onChange={setField("status")}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      className="premium-input"
                     >
                       <option value="Planning">Planning</option>
                       <option value="Active">Active</option>
@@ -330,11 +329,11 @@ export const CreateProjectPage = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm font-semibold text-slate-700 block mb-2">Priority</label>
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Priority</label>
                     <select
                       value={form.priority}
                       onChange={setField("priority")}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      className="premium-input"
                     >
                       <option value="Low">Low</option>
                       <option value="Medium">Medium</option>
@@ -344,23 +343,23 @@ export const CreateProjectPage = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-slate-700 block mb-2">Deadline (Optional)</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Deadline (Optional)</label>
                   <input
                     type="date"
                     value={form.deadline ?? ""}
                     onChange={setField("deadline")}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    className="premium-input"
                   />
                 </div>
 
                 {user?.role === "admin" && (
-                  <div className="border-t pt-6">
-                    <label className="text-sm font-semibold text-slate-700 block mb-2">Team Members</label>
+                  <div className="border-t border-slate-800 pt-6">
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Team Members</label>
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 text-left outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 flex justify-between items-center shadow-sm"
+                        className="premium-input text-left flex justify-between items-center"
                       >
                         <span>
                           {selectedTeamMembers.length === 0
@@ -371,7 +370,7 @@ export const CreateProjectPage = () => {
                       </button>
 
                       {dropdownOpen && (
-                        <div className="absolute z-20 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto p-2 space-y-1 top-full left-0">
+                        <div className="absolute z-20 w-full mt-2 bg-[#0E1424] border border-slate-850 rounded-xl shadow-2xl max-h-60 overflow-y-auto p-1.5 space-y-1 top-full left-0 backdrop-blur-md">
                           {loadingMembers ? (
                             <div className="flex items-center justify-center py-4">
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
@@ -384,7 +383,7 @@ export const CreateProjectPage = () => {
                               return (
                                 <label
                                   key={member._id}
-                                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
+                                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-800/60 cursor-pointer transition-colors"
                                 >
                                   <input
                                     type="checkbox"
@@ -400,11 +399,11 @@ export const CreateProjectPage = () => {
                                         return next;
                                       });
                                     }}
-                                    className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer"
+                                    className="w-4 h-4 rounded border-slate-750 bg-slate-900 text-blue-600 cursor-pointer focus:ring-offset-0 focus:ring-0"
                                   />
                                   <div className="flex-1">
-                                    <p className="text-sm font-medium text-slate-900">{member.name}</p>
-                                    <p className="text-xs text-slate-500">{member.email}</p>
+                                    <p className="text-sm font-medium text-slate-200">{member.name}</p>
+                                    <p className="text-xs text-slate-400">{member.email}</p>
                                   </div>
                                 </label>
                               );
@@ -416,9 +415,9 @@ export const CreateProjectPage = () => {
                   </div>
                 )}
 
-                <div className="rounded-xl border border-blue-200/60 bg-blue-50/80 p-4 space-y-2">
-                  <p className="text-sm font-semibold text-blue-900">💡 Pro Tip</p>
-                  <p className="text-xs text-blue-800">Set a clear deadline to keep your team focused and accountable on the project timeline.</p>
+                <div className="rounded-xl border border-blue-900/30 bg-blue-950/15 p-4 space-y-2">
+                  <p className="text-sm font-semibold text-blue-400">💡 Pro Tip</p>
+                  <p className="text-xs text-blue-300">Set a clear deadline to keep your team focused and accountable on the project timeline.</p>
                 </div>
               </div>
             </motion.div>
@@ -429,23 +428,23 @@ export const CreateProjectPage = () => {
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <div className="rounded-2xl border border-slate-200/60 bg-white/80 p-8 shadow-lg backdrop-blur-[20px] space-y-6">
+              <div className="premium-card space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">Project Cover</h2>
-                  <p className="mt-1 text-sm text-slate-600">Add a professional cover image (optional)</p>
+                  <h2 className="text-2xl font-bold text-slate-100">Project Cover</h2>
+                  <p className="mt-1 text-sm text-slate-400">Add a professional cover image (optional)</p>
                 </div>
 
                 {imagePreview ? (
                   <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="relative rounded-xl overflow-hidden border-2 border-blue-400/50"
+                    className="relative rounded-xl overflow-hidden border-2 border-blue-500/20"
                   >
                     <img src={imagePreview} alt="Cover" className="w-full h-48 object-cover" />
                     <button
                       type="button"
                       onClick={() => { setImagePreview(null); setForm(prev => ({ ...prev, coverImage: undefined })); setStoredJson(FORM_STORAGE_KEY, { ...form, coverImage: undefined }); }}
-                      className="absolute right-3 top-3 rounded-lg bg-red-500 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-600"
+                      className="absolute right-3 top-3 rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-750 transition"
                     >
                       Remove
                     </button>
@@ -455,17 +454,17 @@ export const CreateProjectPage = () => {
                     onDrop={handleDrop}
                     onDragOver={(e) => e.preventDefault()}
                     onClick={() => coverFileRef.current?.click()}
-                    className="relative rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 px-6 py-12 text-center transition hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer"
+                    className="relative rounded-xl border-2 border-dashed border-slate-800 bg-slate-950/20 px-6 py-12 text-center transition hover:border-blue-500/50 hover:bg-slate-900/45 cursor-pointer"
                   >
                     <div className="flex flex-col items-center gap-3">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 border border-blue-200">
-                        <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20">
+                        <svg className="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-semibold text-slate-900">Drag & drop image here</p>
-                        <p className="text-xs text-slate-500">or click to browse (PNG, JPG, max 10MB)</p>
+                        <p className="font-semibold text-slate-200">Drag & drop image here</p>
+                        <p className="text-xs text-slate-400 mt-1">or click to browse (PNG, JPG, max 10MB)</p>
                       </div>
                     </div>
                     <input
@@ -481,9 +480,9 @@ export const CreateProjectPage = () => {
                   </div>
                 )}
 
-                <div className="rounded-xl border border-amber-200/60 bg-amber-50/80 p-4 space-y-2">
-                  <p className="text-sm font-semibold text-amber-900">✨ Cover Image Tips</p>
-                  <ul className="text-xs text-amber-800 space-y-1 list-disc list-inside">
+                <div className="rounded-xl border border-amber-900/30 bg-amber-950/15 p-4 space-y-2">
+                  <p className="text-sm font-semibold text-amber-400">✨ Cover Image Tips</p>
+                  <ul className="text-xs text-amber-300 space-y-1 list-disc list-inside">
                     <li>Use high-quality images (1600x900px recommended)</li>
                     <li>Choose images that represent your project</li>
                     <li>Images display on project cards and overview</li>
@@ -492,29 +491,29 @@ export const CreateProjectPage = () => {
               </div>
             </motion.div>
 
-            <div className="flex gap-3">
-              <Button
+            <div className="flex gap-3 pt-2">
+              <button
                 type="button"
-                variant="secondary"
                 onClick={() => step > 1 ? setStep(step - 1) : navigate("/projects")}
                 disabled={saving}
+                className="premium-button-secondary"
               >
                 {step > 1 ? "← Back" : "Cancel"}
-              </Button>
+              </button>
               {step < 3 ? (
-                <Button
+                <button
                   type="button"
                   onClick={() => setStep(step + 1)}
                   disabled={step === 1 && (!form.title?.trim() || !form.description?.trim())}
-                  className="flex items-center gap-2 ml-auto"
+                  className="premium-button-primary flex items-center gap-2 ml-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next <ArrowRight className="h-4 w-4" />
-                </Button>
+                </button>
               ) : (
-                <Button type="submit" loading={saving} className="flex items-center gap-2 ml-auto">
+                <button type="submit" disabled={saving} className="premium-button-primary flex items-center gap-2 ml-auto disabled:opacity-50">
                   <CheckCircle className="h-4 w-4" />
                   {isEditing ? "Update project" : "Create project"}
-                </Button>
+                </button>
               )}
             </div>
           </motion.div>
@@ -522,10 +521,10 @@ export const CreateProjectPage = () => {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="hidden lg:block"
+            className="hidden lg:block animate-fade-in"
           >
-            <div className="sticky top-8 rounded-2xl border border-slate-200/60 bg-white/80 p-8 shadow-lg backdrop-blur-[20px]">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-600 mb-6">Project Preview</h3>
+            <div className="premium-card sticky top-8 space-y-6">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Project Preview</h3>
 
               <div className="space-y-6">
                 {imagePreview ? (
@@ -535,45 +534,45 @@ export const CreateProjectPage = () => {
                     animate={{ opacity: 1 }}
                     src={imagePreview}
                     alt="Cover"
-                    className="w-full h-32 rounded-xl object-cover"
+                    className="w-full h-32 rounded-xl object-cover border border-slate-800"
                   />
                 ) : (
-                  <div className={`w-full h-32 rounded-xl bg-gradient-to-br ${statusColors[form.status]} flex items-center justify-center text-white text-4xl font-bold`}>
+                  <div className={`w-full h-32 rounded-xl bg-gradient-to-br ${statusColors[form.status || "Planning"]} flex items-center justify-center text-white text-4xl font-bold border border-slate-800`}>
                     {form.title?.charAt(0).toUpperCase() || "?"}
                   </div>
                 )}
 
-                <div className="space-y-4 pt-4 border-t border-slate-200">
+                <div className="space-y-4 pt-4 border-t border-slate-800">
                   <div>
                     <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Title</p>
-                    <p className="mt-1 text-lg font-bold text-slate-900">{form.title || "Untitled Project"}</p>
+                    <p className="mt-1 text-lg font-bold text-slate-200 truncate">{form.title || "Untitled Project"}</p>
                   </div>
 
                   <div>
                     <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Description</p>
-                    <p className="mt-1 text-sm text-slate-600 line-clamp-3">{form.description || "No description yet"}</p>
+                    <p className="mt-1 text-sm text-slate-400 line-clamp-3 leading-relaxed">{form.description || "No description yet"}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-200">
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800">
                     <div>
                       <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Status</p>
-                      <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
-                        <div className="h-2 w-2 rounded-full bg-blue-500" />
+                      <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-semibold border border-blue-500/20 text-blue-400">
+                        <div className="h-1.5 w-1.5 rounded-full bg-blue-400" />
                         {form.status}
                       </div>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Priority</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-900">{form.priority}</p>
+                      <p className="mt-1.5 text-sm font-semibold text-slate-300">{form.priority}</p>
                     </div>
                   </div>
 
                   {form.deadline && (
-                    <div className="rounded-lg bg-slate-50 p-3 flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-slate-500 shrink-0" />
+                    <div className="rounded-xl bg-slate-950/40 border border-slate-850 p-3 flex items-center gap-2.5 text-sm mt-2">
+                      <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
                       <div>
-                        <p className="text-xs text-slate-600">Deadline</p>
-                        <p className="font-semibold text-slate-900">{new Date(form.deadline).toLocaleDateString()}</p>
+                        <p className="text-xs text-slate-550">Deadline</p>
+                        <p className="font-semibold text-slate-300 mt-0.5">{new Date(form.deadline).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )}

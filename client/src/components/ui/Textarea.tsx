@@ -13,7 +13,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+          <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.18em] text-[#94A3B8]">
             {label}
           </label>
         )}
@@ -25,13 +25,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           )}
           <textarea
             ref={ref}
-            className={`w-full resize-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/15 ${
+            className={`w-full resize-none rounded-xl border border-white/10 bg-[#0F172A] px-3.5 py-2.5 text-sm text-[#F8FAFC] placeholder:text-[#64748B] transition-all focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${
               leftIcon ? "pl-10" : ""
-            } ${error ? "border-rose-400 focus:border-rose-500 focus:ring-rose-500/15" : ""} ${className}`}
+            } ${error ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : ""} ${className}`}
             {...props}
           />
         </div>
-        {hint && !error && <p className="mt-1.5 text-xs text-slate-500">{hint}</p>}
+        {hint && !error && <p className="mt-1.5 text-xs text-[#64748B]">{hint}</p>}
         {error && <p className="mt-1.5 text-xs font-medium text-rose-500">{error}</p>}
       </div>
     );

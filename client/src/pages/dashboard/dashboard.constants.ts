@@ -51,7 +51,7 @@ export const activityToneMap: Record<string, string> = {
   task_assigned: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   task_reassigned: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   task_completed: "bg-green-500/10 text-green-600 border-green-500/20",
-  task_updated: "bg-slate-500/10 text-slate-600 border-slate-500/20",
+  task_updated: "bg-white/10 text-slate-600 border-slate-200/20 dark:bg-slate-800/10 dark:border-slate-700/20",
   comment_added: "bg-violet-500/10 text-violet-600 border-violet-500/20",
   reply_added: "bg-violet-500/10 text-violet-600 border-violet-500/20",
   file_uploaded: "bg-amber-500/10 text-amber-600 border-amber-500/20",

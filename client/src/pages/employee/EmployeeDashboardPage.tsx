@@ -48,7 +48,7 @@ export const EmployeeDashboardPage = () => {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm hover:shadow-md">
+      <div className="rounded-2xl border border-white/5 bg-[#111827] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Employee hub</p>
@@ -58,11 +58,11 @@ export const EmployeeDashboardPage = () => {
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-sm hover:shadow-md">
+            <div className="rounded-2xl border border-white/5 bg-[#1A2235] p-5 shadow-sm">
               <p className="text-sm text-slate-400">Today&apos;s focus</p>
-              <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-slate-100">4 tasks</p>
+              <p className="mt-3 text-3xl font-semibold text-[#F8FAFC]">4 tasks</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 dark:text-slate-100 shadow-sm hover:shadow-md">
+            <div className="rounded-2xl border border-white/5 bg-[#1A2235] p-5 text-[#F8FAFC] shadow-sm">
               <p className="text-sm uppercase tracking-[0.24em] text-slate-200">Productivity</p>
               <p className="mt-3 text-3xl font-semibold">+12%</p>
             </div>
@@ -82,9 +82,9 @@ export const EmployeeDashboardPage = () => {
             </div>
             <div className="space-y-4">
               {assignedTasks.map((task) => (
-                <div key={task.title} className="rounded-3xl border border-white/10 bg-white dark:bg-slate-950/70 px-5 py-4 transition hover:bg-white dark:hover:bg-slate-900/80 hover:border-fuchsia-400/30">
+                <div key={task.title} className="rounded-3xl border border-white/5 bg-[#1A2235] px-5 py-4 transition hover:bg-[#1A2235]/80 hover:border-white/10">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-semibold text-slate-900 dark:text-slate-100">{task.title}</p>
+                    <p className="font-semibold text-[#F8FAFC]">{task.title}</p>
                     <Badge variant={task.status === "In progress" ? "info" : task.status === "Review" ? "warning" : "default"}>{task.status}</Badge>
                   </div>
                   <p className="mt-2 text-sm text-slate-400">Due {task.due}</p>
@@ -103,9 +103,9 @@ export const EmployeeDashboardPage = () => {
             </div>
             <div className="mt-5 space-y-3">
               {deadlines.map((item) => (
-                <div key={item.label} className="flex items-center justify-between rounded-3xl bg-white dark:bg-slate-900/80 px-5 py-4 text-sm text-slate-300">
+                <div key={item.label} className="flex items-center justify-between rounded-3xl bg-[#1A2235] border border-white/5 px-5 py-4 text-sm text-[#CBD5E1]">
                   <span>{item.label}</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">{item.date}</span>
+                  <span className="font-semibold text-[#F8FAFC]">{item.date}</span>
                 </div>
               ))}
             </div>
@@ -121,17 +121,17 @@ export const EmployeeDashboardPage = () => {
               </div>
               <Sparkles className="h-6 w-6 text-fuchsia-400" />
             </div>
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center shadow-sm hover:shadow-md">
+            <div className="rounded-2xl border border-white/5 bg-[#1A2235] p-6 text-center shadow-sm">
               <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Focus index</p>
-              <p className="mt-4 text-5xl font-semibold text-slate-900 dark:text-slate-100">87</p>
+              <p className="mt-4 text-5xl font-semibold text-[#F8FAFC]">87</p>
               <p className="mt-3 text-sm text-slate-400">Your productivity is 8% above the team average.</p>
             </div>
             <div className="grid gap-3">
-              <div className="flex items-center justify-between rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 text-sm text-slate-300 shadow-sm hover:shadow-md">
+              <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-[#1A2235] px-4 py-3 text-sm text-[#CBD5E1] shadow-sm">
                 <span>Collaboration</span>
                 <span>92%</span>
               </div>
-              <div className="flex items-center justify-between rounded-3xl border border-white/10 bg-white dark:bg-slate-900/80 px-4 py-3 text-sm text-slate-300">
+              <div className="flex items-center justify-between rounded-3xl border border-white/5 bg-[#1A2235] px-4 py-3 text-sm text-[#CBD5E1]">
                 <span>Delivery</span>
                 <span>81%</span>
               </div>
@@ -148,7 +148,7 @@ export const EmployeeDashboardPage = () => {
             </div>
             <div className="mt-5 space-y-4">
               {activities.map((item) => (
-                <div key={item} className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-5 py-4 text-sm text-slate-300 transition hover:shadow-md">
+                <div key={item} className="rounded-2xl border border-white/5 bg-[#1A2235] px-5 py-4 text-sm text-[#CBD5E1] transition hover:border-white/10">
                   <div className="flex items-center gap-3">
                     <Activity className="h-4 w-4 text-fuchsia-400" />
                     <p>{item}</p>

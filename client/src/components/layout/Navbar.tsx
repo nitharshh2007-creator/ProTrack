@@ -18,7 +18,7 @@ const sidebarItems = [
 ];
 
 export const Sidebar = () => {
-  const { user, logout, hasRole } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -96,7 +96,7 @@ export const Sidebar = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.95 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute bottom-full mb-2 w-full overflow-hidden rounded-xl bg-white dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-white/10"
+                  className="absolute bottom-full mb-2 w-full overflow-hidden rounded-xl bg-[#111827] backdrop-blur-xl border border-white/5"
                 >
                   <div className="py-2">
                     <button

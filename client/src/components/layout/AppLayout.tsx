@@ -14,7 +14,7 @@ export const AppLayout = () => {
       <BackgroundOrbs />
       <NotificationToasts />
 
-      <main className="flex-1 ml-[240px] transition-all duration-300">
+      <main className="flex-1 ml-[260px] transition-all duration-300">
         <div className="min-h-screen">
           <div className="sticky top-0 z-20 flex justify-end px-1 pt-1">
             <NotificationBell />

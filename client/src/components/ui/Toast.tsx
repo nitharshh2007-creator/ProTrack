@@ -5,12 +5,14 @@ import { CheckCircle, X } from 'lucide-react';
 interface ToastProps {
   message: string;
   type?: 'success' | 'error';
+  variant?: 'success' | 'error';
   duration?: number;
   onClose: () => void;
 }
 
-export const Toast = ({ message, type = 'success', duration = 2000, onClose }: ToastProps) => {
+export const Toast = ({ message, type = 'success', variant, duration = 2000, onClose }: ToastProps) => {
   const [isVisible, setIsVisible] = useState(true);
+  const resolvedType = variant || type;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,13 +36,13 @@ export const Toast = ({ message, type = 'success', duration = 2000, onClose }: T
           animate={{ opacity: 1, y: 0, x: 0 }}
           exit={{ opacity: 0, y: -50, x: 20 }}
           className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border ${
-            type === 'success'
+            resolvedType === 'success'
               ? 'bg-green-500 text-white border-green-600'
               : 'bg-red-500 text-white border-red-600'
           }`}
           style={{ maxWidth: '400px' }}
         >
-          {type === 'success' && <CheckCircle className="h-5 w-5" />}
+          {resolvedType === 'success' && <CheckCircle className="h-5 w-5" />}
           <span className="text-sm font-medium">{message}</span>
           <button
             onClick={handleClose}

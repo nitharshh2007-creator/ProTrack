@@ -5,12 +5,11 @@ import { formatDate } from "@/lib/formatDate";
 import { taskService, commentService, userService } from "@/services";
 import type { Task, TaskPriority, TaskStatus } from "@/types";
 import { Spinner } from "@/components/ui/Spinner";
-import { Button } from "@/components/ui/Button";
 import { TaskModal } from "@/components/tasks/TaskModal";
 import { useAuth } from "@/store/auth.store";
+import { useTheme } from "@/store/theme.store";
 import {
-  Search, Filter, CheckCircle, Clock, AlertCircle, BarChart3,
-  Plus, User, Calendar, MessageSquare, Paperclip, Eye, Edit, Trash,
+  Search, Plus, User, Calendar, Eye, Edit, Trash,
   Clipboard, ArrowUpRight
 } from "lucide-react";
 
@@ -58,6 +57,8 @@ export const TasksPage = () => {
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
+  const { theme } = useTheme();
+
   const fetchTasks = () => {
     setLoading(true);
     setError("");
@@ -85,13 +86,7 @@ export const TasksPage = () => {
     userService.getAll().then((u) => setAllUsers(u)).catch(() => {});
   }, []);
 
-  const stats = useMemo(() => {
-    const total = tasks.length;
-    const completed = tasks.filter(t => t.status === "Completed").length;
-    const inProgress = tasks.filter(t => t.status === "In Progress").length;
-    const blocked = tasks.filter(t => t.status === "Blocked").length;
-    return { total, completed, inProgress, blocked };
-  }, [tasks]);
+
 
   const assignees = useMemo(() => allUsers.map((u) => ({ _id: u._id, name: u.name })), [allUsers]);
 
@@ -173,13 +168,13 @@ export const TasksPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-[#101728] px-8 py-12 shadow-xl"
+        className="premium-hero"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.25),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(124,58,237,0.18),_transparent_35%)]" />
-        <div className="relative space-y-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Task Management</p>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Tasks</h1>
-          <p className="text-sm text-slate-400">Organize, track and collaborate on all project work</p>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
+        <div className="relative space-y-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">Task Management</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Tasks</h1>
+          <p className="text-sm md:text-base text-[#CBD5E1] max-w-2xl leading-relaxed">Organize, track and collaborate on all project work</p>
         </div>
       </motion.div>
 
@@ -208,7 +203,7 @@ export const TasksPage = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "")}
-              className="rounded-xl border-0 bg-white dark:bg-slate-800/50 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm transition focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-400/20"
+              className="rounded-xl border-0 bg-slate-900 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 focus:ring-2 focus:ring-slate-700"
             >
               <option value="">Status</option>
               {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -217,7 +212,7 @@ export const TasksPage = () => {
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | "")}
-              className="rounded-xl border-0 bg-white dark:bg-slate-800/50 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm transition focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-400/20"
+              className="rounded-xl border-0 bg-slate-900 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 focus:ring-2 focus:ring-slate-700"
             >
               <option value="">Priority</option>
               {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
@@ -226,7 +221,7 @@ export const TasksPage = () => {
             <select
               value={assigneeFilter}
               onChange={(e) => setAssigneeFilter(e.target.value)}
-              className="rounded-xl border-0 bg-white dark:bg-slate-800/50 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm transition focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-400/20"
+              className="rounded-xl border-0 bg-slate-900 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 focus:ring-2 focus:ring-slate-700"
             >
               <option value="">Assignee</option>
               {assignees.map((u) => <option key={u._id} value={u._id}>{u.name}</option>)}
@@ -235,7 +230,7 @@ export const TasksPage = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="rounded-xl border-0 bg-white dark:bg-slate-800/50 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm transition focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-400/20"
+              className="rounded-xl border-0 bg-slate-900 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 focus:ring-2 focus:ring-slate-700"
             >
               <option value="dueDate">Due Date</option>
               <option value="priority">Priority</option>
@@ -317,7 +312,12 @@ export const TasksPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+          className="grid gap-6"
+          style={
+            theme === 'light'
+              ? { gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', overflow: 'visible' }
+              : undefined
+          }
         >
           {filtered.map((task, index) => (
             <motion.div
@@ -327,7 +327,7 @@ export const TasksPage = () => {
               transition={{ delay: index * 0.05 }}
               whileHover={{ y: -8, boxShadow: '0 25px 50px rgba(37,99,235,0.15)' }}
               className="relative group bg-white dark:bg-slate-900/80 rounded-3xl border border-gray-200 dark:border-slate-800 p-6 shadow-lg transition-all duration-300"
-              style={{ boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)' }}
+              style={{ boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)', minWidth: '420px' }}
             >
               <div
                 className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl transition-all duration-300 group-hover:shadow-sm"
@@ -410,7 +410,7 @@ export const TasksPage = () => {
                   <span className="text-sm font-medium text-slate-400">Progress</span>
                   <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{getProgressPercentage(task.status)}%</span>
                 </div>
-                <div className="h-[10px] rounded-full bg-slate-700 overflow-hidden">
+                <div className="h-[10px] rounded-full bg-[#0F172A] overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${getProgressPercentage(task.status)}%` }}
@@ -422,24 +422,24 @@ export const TasksPage = () => {
               </div>
 
               <div className="mb-4 flex gap-2">
-                <div className="rounded-full bg-slate-800/50 border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 backdrop-blur-sm">
-                  💬{commentCounts[task._id] || 2}
-                </div>
-                <div className="rounded-full bg-slate-800/50 border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 backdrop-blur-sm">
-                  📎{task.attachments?.length || 3}
-                </div>
-                <div className="rounded-full bg-slate-800/50 border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 backdrop-blur-sm">
-                  👥1
-                </div>
+                  <div className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-xs font-medium text-blue-400">
+                    💬{commentCounts[task._id] || 2}
+                  </div>
+                  <div className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-xs font-medium text-blue-400">
+                    📎{(task as any).attachments?.length || 3}
+                  </div>
+                  <div className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-xs font-medium text-blue-400">
+                    👥1
+                  </div>
               </div>
 
-              {(task.attachments?.length || 3) > 0 && (
+              {((task as any).attachments?.length || 3) > 0 && (
                 <div className="mb-4">
-                  <div className="text-xs font-medium text-slate-400 mb-2">📎 Attachments</div>
+                  <div className="text-xs font-medium text-[#94A3B8] mb-2">📎 Attachments</div>
                   <div className="flex gap-2">
-                    <div className="rounded-lg bg-slate-800/50 px-2 py-1 text-xs text-slate-400">[design.pdf]</div>
-                    <div className="rounded-lg bg-slate-800/50 px-2 py-1 text-xs text-slate-400">[screenshot.png]</div>
-                    <div className="rounded-lg bg-slate-800/50 px-2 py-1 text-xs text-slate-400">[meeting.mp4]</div>
+                    <div className="rounded-lg bg-blue-500/10 px-2 py-1 text-xs text-blue-400 border border-blue-500/20">[design.pdf]</div>
+                    <div className="rounded-lg bg-blue-500/10 px-2 py-1 text-xs text-blue-400 border border-blue-500/20">[screenshot.png]</div>
+                    <div className="rounded-lg bg-blue-500/10 px-2 py-1 text-xs text-blue-400 border border-blue-500/20">[meeting.mp4]</div>
                   </div>
                 </div>
               )}
