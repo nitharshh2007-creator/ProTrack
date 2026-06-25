@@ -26,11 +26,11 @@ import { Search } from "lucide-react";
 const COLUMNS: TaskStatus[] = ["Todo", "In Progress", "Review", "Blocked", "Completed"];
 
 const COLUMN_STYLES: Record<TaskStatus, { bg: string; dot: string; color: string }> = {
-  Todo:         { bg: "bg-gray-50",   dot: "bg-gray-400", color: "#64748b"   },
-  "In Progress":{ bg: "bg-blue-50",    dot: "bg-blue-500", color: "#2563eb"   },
-  Review:       { bg: "bg-yellow-50",  dot: "bg-yellow-500", color: "#f59e0b" },
-  Blocked:      { bg: "bg-red-50",     dot: "bg-red-500", color: "#ef4444"    },
-  Completed:    { bg: "bg-green-50",   dot: "bg-green-500", color: "#10b981"  },
+  Todo:         { bg: "bg-slate-950/20",   dot: "bg-slate-800 border border-slate-700", color: "#94a3b8"   },
+  "In Progress":{ bg: "bg-blue-950/5",    dot: "bg-blue-500", color: "#3b82f6"   },
+  Review:       { bg: "bg-yellow-950/5",  dot: "bg-yellow-500", color: "#f59e0b" },
+  Blocked:      { bg: "bg-red-950/5",     dot: "bg-red-500", color: "#ef4444"    },
+  Completed:    { bg: "bg-green-950/5",   dot: "bg-green-500", color: "#10b981"  },
 };
 
 type Board = Record<TaskStatus, Task[]>;
@@ -121,23 +121,6 @@ export const KanbanPage = () => {
 
   useEffect(() => { fetchTasks(); }, [fetchTasks]);
 
-  // Statistics and insights
-  const stats = useMemo(() => {
-    if (!board) return { total: 0, inProgress: 0, completed: 0, blocked: 0, review: 0, dueToday: 0, overdue: 0 };
-    
-    const allTasks = Object.values(board).flat();
-    const today = new Date().toDateString();
-    
-    return {
-      total: allTasks.length,
-      inProgress: board["In Progress"].length,
-      completed: board.Completed.length,
-      blocked: board.Blocked.length,
-      review: board.Review.length,
-      dueToday: allTasks.filter(t => new Date(t.dueDate).toDateString() === today).length,
-      overdue: allTasks.filter(t => new Date(t.dueDate) < new Date()).length
-    };
-  }, [board]);
 
   // Filtered board
   const filteredBoard = useMemo(() => {
@@ -270,13 +253,13 @@ export const KanbanPage = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-[#101728] px-8 py-12 shadow-xl"
+        className="premium-hero px-8 md:px-10 py-12 md:py-14"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.25),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(124,58,237,0.18),_transparent_35%)]" />
-        <div className="relative space-y-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Workspace Board</p>
-          <h1 className="text-3xl font-bold text-white">Kanban</h1>
-          <p className="text-sm text-slate-400">Visual task management and team collaboration</p>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
+        <div className="relative space-y-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">Workspace Board</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Kanban</h1>
+          <p className="text-sm md:text-base text-slate-300 max-w-2xl leading-relaxed">Visual task management and team collaboration</p>
         </div>
       </motion.div>
 
@@ -285,19 +268,19 @@ export const KanbanPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-900 p-4 shadow-sm hover:shadow-md"
+        className="premium-card p-4"
       >
-        <div className="p-6">
+        <div>
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Premium Search Bar */}
-              <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
               <input
                 type="text"
                 placeholder="Search tasks..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 py-3 text-sm shadow-sm outline-none transition focus:ring-2 focus:ring-blue-400"
+                className="premium-input pl-12 pr-4 py-3"
               />
             </div>
             
@@ -306,7 +289,7 @@ export const KanbanPage = () => {
               <select
                 value={projectFilter}
                 onChange={(e) => setProjectFilter(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-gray-700 dark:text-slate-200 shadow-sm transition focus:ring-2 focus:ring-blue-400"
+                className="premium-input px-3 py-2 w-auto"
               >
                 <option value="">All Projects</option>
                 {filterOptions.projects.map(project => (
@@ -317,7 +300,7 @@ export const KanbanPage = () => {
               <select
                 value={assigneeFilter}
                 onChange={(e) => setAssigneeFilter(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-gray-700 dark:text-slate-200 shadow-sm transition focus:ring-2 focus:ring-blue-400"
+                className="premium-input px-3 py-2 w-auto"
               >
                 <option value="">All Assignees</option>
                 {filterOptions.assignees.map(assignee => (
@@ -328,7 +311,7 @@ export const KanbanPage = () => {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-gray-700 dark:text-slate-200 shadow-sm transition focus:ring-2 focus:ring-blue-400"
+                className="premium-input px-3 py-2 w-auto"
               >
                 <option value="">All Priorities</option>
                 {filterOptions.priorities.map(priority => (
@@ -339,9 +322,9 @@ export const KanbanPage = () => {
               {(search || projectFilter || assigneeFilter || priorityFilter) && (
                 <button
                   onClick={clearFilters}
-                  className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-100"
+                  className="premium-button-danger px-3 py-2 text-xs"
                 >
-                  Clear
+                  Clear Filters
                 </button>
               )}
             </div>
@@ -351,16 +334,16 @@ export const KanbanPage = () => {
 
       {/* Readonly notice */}
       {!canEdit && (
-        <div className="rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-600">
+        <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 px-4 py-2 text-sm text-blue-400">
           View only — you do not have permission to move tasks.
         </div>
       )}
 
       {/* Drag error banner */}
       {dragError && (
-        <div className="flex items-center justify-between rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
+        <div className="flex items-center justify-between rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-2 text-sm text-red-400">
           <span>{dragError}</span>
-          <button onClick={() => setDragError("")} className="ml-4 text-red-400 hover:text-red-600">✕</button>
+          <button onClick={() => setDragError("")} className="ml-4 text-red-400 hover:text-red-500">✕</button>
         </div>
       )}
 

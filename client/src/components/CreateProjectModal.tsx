@@ -135,7 +135,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
             transition={{ type: "spring", duration: 0.35 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="w-full max-w-4xl rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 shadow-2xl backdrop-blur-[20px] overflow-hidden max-h-[90vh]">
+            <div className="w-full max-w-4xl rounded-3xl border border-white/5 bg-[#111827] shadow-2xl overflow-hidden max-h-[90vh]">
               {/* Header */}
               <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 px-10 py-6">
                 <div>
@@ -167,7 +167,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
                         value={form.title}
                         onChange={setField("title")}
                         disabled={saving}
-                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3 text-base text-slate-900 dark:text-slate-100 placeholder-slate-400 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
+                        className="w-full rounded-2xl border border-white/10 bg-[#0F172A] px-5 py-3 text-base text-[#F8FAFC] placeholder-[#64748B] outline-none transition-all duration-300 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
                         required
                       />
                     </div>
@@ -183,7 +183,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
                         value={form.description}
                         onChange={setField("description")}
                         disabled={saving}
-                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3 text-base text-slate-900 dark:text-slate-100 placeholder-slate-400 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none disabled:opacity-50"
+                        className="w-full rounded-2xl border border-white/10 bg-[#0F172A] px-5 py-3 text-base text-[#F8FAFC] placeholder-[#64748B] outline-none transition-all duration-300 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none disabled:opacity-50"
                         required
                       />
                     </div>
@@ -198,7 +198,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
                           value={form.status}
                           onChange={setField("status")}
                           disabled={saving}
-                          className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3 text-base text-slate-900 dark:text-slate-100 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 appearance-none"
+                          className="w-full rounded-2xl border border-white/10 bg-[#0F172A] px-5 py-3 text-base text-[#F8FAFC] outline-none transition-all duration-300 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 appearance-none"
                         >
                           <option value="Planning">Planning</option>
                           <option value="Active">Active</option>
@@ -213,7 +213,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
                           value={form.priority}
                           onChange={setField("priority")}
                           disabled={saving}
-                          className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3 text-base text-slate-900 dark:text-slate-100 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 appearance-none"
+                          className="w-full rounded-2xl border border-white/10 bg-[#0F172A] px-5 py-3 text-base text-[#F8FAFC] outline-none transition-all duration-300 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 appearance-none"
                         >
                           <option value="Low">Low</option>
                           <option value="Medium">Medium</option>
@@ -232,7 +232,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
                         value={form.deadline ?? ""}
                         onChange={setField("deadline")}
                         disabled={saving}
-                        className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3 text-base text-slate-900 dark:text-slate-100 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
+                        className="w-full rounded-2xl border border-white/10 bg-[#0F172A] px-5 py-3 text-base text-[#F8FAFC] outline-none transition-all duration-300 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
                       />
                     </div>
 
@@ -323,7 +323,7 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
                         />
                       ) : (
                         <div
-                          className={`w-full h-24 rounded-lg bg-gradient-to-br ${statusColors[form.status]} flex items-center justify-center text-white text-3xl font-bold`}
+                          className={`w-full h-24 rounded-lg bg-gradient-to-br ${statusColors[form.status || "Planning"]} flex items-center justify-center text-white text-3xl font-bold`}
                         >
                           {form.title?.charAt(0).toUpperCase() || "?"}
                         </div>
@@ -376,12 +376,12 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
               </form>
 
               {/* Footer */}
-              <div className="border-t border-slate-100 dark:border-slate-800 px-10 py-6 flex gap-3 bg-white dark:bg-slate-900/50">
+              <div className="border-t border-white/5 px-10 py-6 flex gap-3 bg-[#111827]">
                 <button
                   type="button"
                   onClick={handleClose}
                   disabled={saving}
-                  className="rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+                  className="rounded-2xl border border-white/10 bg-[#1A2235] px-6 py-2.5 text-sm font-semibold text-[#CBD5E1] hover:bg-[#1A2235]/80 hover:border-white/20 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>

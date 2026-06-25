@@ -5,7 +5,7 @@ import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { taskService, projectService, userService } from "@/services";
 import type { Task, CreateTaskPayload, TaskStatus, TaskPriority, Project, User } from "@/types";
-import { X, SquareKanban, Upload, FileText, Paperclip, Trash2, Image, Video, File, RefreshCw } from "lucide-react";
+import { X, SquareKanban, Upload, FileText, Trash2, Image, Video, File, RefreshCw } from "lucide-react";
 
 const STATUSES: TaskStatus[] = ["Todo", "In Progress", "Review", "Blocked", "Completed"];
 const PRIORITIES: TaskPriority[] = ["Low", "Medium", "High"];
@@ -154,7 +154,7 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.93, y: 20 }}
           transition={{ type: "spring", stiffness: 380, damping: 28 }}
-          className="relative z-10 w-full max-w-xl rounded-2xl bg-white dark:bg-slate-900 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
+          className="relative z-10 w-full max-w-xl rounded-2xl bg-[#111827] border border-white/5 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
         >
           {/* Header — gradient glassmorphism */}
           <div
@@ -189,8 +189,8 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
               <textarea
                 id="description" rows={3} value={form.description} onChange={set("description")}
                 placeholder="Describe what needs to be done…"
-                className={`w-full resize-none rounded-xl border px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 ${
-                  errors.description ? "border-red-400" : "border-slate-200 dark:border-slate-700"
+                className={`w-full resize-none rounded-xl border px-3 py-2.5 text-sm bg-[#0F172A] text-[#F8FAFC] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-[#64748B] ${
+                  errors.description ? "border-red-500" : "border-white/10"
                 }`}
               />
               {errors.description && <span className="text-xs text-red-500">{errors.description}</span>}
@@ -231,8 +231,8 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
                   value={form.assignedTo}
                   onChange={set("assignedTo")}
                   disabled={dropdownLoading}
-                  className={`w-full rounded-xl border px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100 ${
-                    errors.assignedTo ? "border-red-400" : "border-slate-200 dark:border-slate-700"
+                  className={`w-full rounded-xl border px-3 py-2.5 text-sm bg-[#0F172A] text-[#F8FAFC] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 ${
+                    errors.assignedTo ? "border-red-500" : "border-white/10"
                   } disabled:opacity-60`}
                 >
                   <option value="">{dropdownLoading ? "Loading…" : "Select member"}</option>
@@ -306,7 +306,7 @@ export const TaskModal = ({ task, onClose, onSaved }: TaskModalProps) => {
 
           {/* Footer - always visible */}
           {apiError && <div className="px-6 py-2 border-t border-slate-200 dark:border-slate-800"><p className="text-sm text-red-500">{apiError}</p></div>}
-          <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 shrink-0">
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-white/5 bg-[#111827] shrink-0">
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
             <Button type="submit" onClick={handleSubmit} loading={submitting}>{task ? "Save Changes" : "Create Task"}</Button>
           </div>

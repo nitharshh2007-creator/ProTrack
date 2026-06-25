@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { settingsService } from "@/services";
-import type { SettingsData } from "@/services";
 import { useAuth } from "./auth.store";
 
 type ThemeContextType = {
@@ -15,20 +14,14 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("dark");
   const [density, setDensity] = useState<"compact" | "comfortable">("comfortable");
   const [isLoading, setIsLoading] = useState(true);
 
   // Apply theme to document
-  const applyTheme = (themeValue: "light" | "dark" | "system") => {
+  const applyTheme = () => {
     const root = document.documentElement;
-    
-    if (themeValue === "system") {
-      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.toggle("dark", systemDark);
-    } else {
-      root.classList.toggle("dark", themeValue === "dark");
-    }
+    root.classList.add("dark");
   };
 
   // Apply density to document
@@ -44,9 +37,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       const loadSettings = async () => {
         try {
           const settings = await settingsService.getSettings();
-          setTheme(settings.theme);
+          // Force theme to dark
+          setTheme("dark");
           setDensity(settings.density);
-          applyTheme(settings.theme);
+          applyTheme();
           applyDensity(settings.density);
         } catch (error) {
           console.error("Failed to load settings:", error);
@@ -58,9 +52,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       loadSettings();
     } else {
       // Use default theme when not authenticated
-      setTheme("light");
+      setTheme("dark");
       setDensity("comfortable");
-      applyTheme("light");
+      applyTheme();
       applyDensity("comfortable");
       setIsLoading(false);
     }
@@ -70,24 +64,16 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (theme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const handleChange = () => applyTheme("system");
+      const handleChange = () => applyTheme();
       
       mediaQuery.addEventListener("change", handleChange);
       return () => mediaQuery.removeEventListener("change", handleChange);
     }
   }, [theme]);
 
-  const updateTheme = async (newTheme: "light" | "dark" | "system") => {
-    setTheme(newTheme);
-    applyTheme(newTheme);
-    
-    if (isAuthenticated) {
-      try {
-        await settingsService.updateSettings({ theme: newTheme });
-      } catch (error) {
-        console.error("Failed to save theme:", error);
-      }
-    }
+  const updateTheme = async () => {
+    setTheme("dark");
+    applyTheme();
   };
 
   const updateDensity = async (newDensity: "compact" | "comfortable") => {

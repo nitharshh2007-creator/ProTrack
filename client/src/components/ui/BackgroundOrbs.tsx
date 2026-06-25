@@ -1,4 +1,3 @@
-import React from "react";
 
 /**
  * BackgroundOrbs renders two floating gradient orbs in the background.

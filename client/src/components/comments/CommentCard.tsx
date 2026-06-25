@@ -37,16 +37,16 @@ export const CommentCard = ({ comment, onDelete, deleting }: CommentCardProps) =
 
       {/* Bubble */}
       <div className="flex-1 min-w-0">
-        <div className="rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 shadow-sm">
+        <div className="rounded-2xl rounded-tl-sm bg-[#1A2235] border border-white/5 px-4 py-3 shadow-sm">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="text-sm font-semibold text-gray-800">{comment.user.name}</span>
+            <span className="text-sm font-semibold text-[#F8FAFC]">{comment.user.name}</span>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400">{formattedDate}</span>
+              <span className="text-xs text-[#94A3B8]">{formattedDate}</span>
               {canDelete && (
                 <button
                   onClick={() => onDelete(comment._id)}
                   disabled={deleting}
-                  className="opacity-0 group-hover:opacity-100 rounded-lg p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 disabled:opacity-30 transition-all"
+                  className="opacity-0 group-hover:opacity-100 rounded-lg p-1 text-slate-400 hover:text-red-400 hover:bg-red-500/20 disabled:opacity-30 transition-all"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 interface BadgeProps {
   children: ReactNode;
   variant?: "default" | "success" | "warning" | "danger" | "info";
+  className?: string;
 }
 
 const variants = {
@@ -13,8 +14,8 @@ const variants = {
   info:     "bg-blue-500/10 text-blue-400 border border-blue-500/20",
 };
 
-export const Badge = ({ children, variant = "default" }: BadgeProps) => (
-  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${variants[variant]}`}>
+export const Badge = ({ children, variant = "default", className = "" }: BadgeProps) => (
+  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${variants[variant]} ${className}`}>
     {children}
   </span>
 );

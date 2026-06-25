@@ -22,7 +22,7 @@ const getStatusColor = (status: TaskStatus) => {
     case "In Progress": return "bg-blue-500";
     case "Blocked": return "bg-red-500";
     case "Review": return "bg-yellow-500";
-    default: return "bg-gray-400";
+    default: return "bg-white dark:bg-slate-800";
   }
 };
 

@@ -187,13 +187,13 @@ export const ProfilePage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-[#101728] px-8 py-12 shadow-xl"
+        className="premium-hero"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.25),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(124,58,237,0.18),_transparent_35%)]" />
-        <div className="relative space-y-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Account</p>
-          <h1 className="text-3xl font-bold text-white">Profile</h1>
-          <p className="text-sm text-slate-400">Manage your account and workspace information</p>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
+        <div className="relative space-y-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">Account</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Profile</h1>
+          <p className="text-sm md:text-base text-[#CBD5E1] max-w-2xl leading-relaxed">Manage your account and workspace information</p>
         </div>
       </motion.div>
 

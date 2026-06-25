@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Plus, Search, ArrowUpDown, Filter, Layers3 } from "lucide-react";
+import { Plus, Search, Filter, Layers3, FolderKanban, Activity, Compass, CheckCircle2, Grid, List, Sparkles } from "lucide-react";
 import { projectService } from "@/services";
 import { useAuth } from "@/store/auth.store";
 import type { Project, ProjectStatus } from "@/types";
@@ -15,11 +15,11 @@ const listVariants = {
 
 type SortOption = "name" | "created" | "progress" | "status";
 
-const statCards = [
-  { label: "Total Projects", color: "border-t-blue-500", key: "all" },
-  { label: "Active", color: "border-t-green-500", key: "active" },
-  { label: "Planning", color: "border-t-amber-500", key: "planning" },
-  { label: "Completed", color: "border-t-purple-500", key: "completed" },
+const statCardsConfig = [
+  { label: "Total Projects", key: "all", icon: FolderKanban, color: "text-blue-400", bgGlow: "rgba(59, 130, 246, 0.15)", trend: "+12% growth", trendUp: true },
+  { label: "Active", key: "active", icon: Activity, color: "text-emerald-400", bgGlow: "rgba(16, 185, 129, 0.15)", trend: "High velocity", trendUp: true },
+  { label: "Planning", key: "planning", icon: Compass, color: "text-amber-400", bgGlow: "rgba(245, 158, 11, 0.15)", trend: "Setup phase", trendUp: null },
+  { label: "Completed", key: "completed", icon: CheckCircle2, color: "text-violet-400", bgGlow: "rgba(139, 92, 246, 0.15)", trend: "100% target", trendUp: true },
 ];
 
 export const ProjectsPage = () => {
@@ -32,6 +32,7 @@ export const ProjectsPage = () => {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "All">("All");
   const [sortBy, setSortBy] = useState<SortOption>("created");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const loadProjects = () => {
     setLoading(true);
@@ -92,21 +93,23 @@ export const ProjectsPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[24px] border border-gray-200 dark:border-white/10 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950/90 dark:via-slate-900/80 dark:to-[#101728] px-8 py-12 shadow-xl"
+          className="premium-hero px-8 md:px-10 py-12 md:py-14"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(124,58,237,0.10),_transparent_35%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.25),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(124,58,237,0.18),_transparent_35%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-2 flex-1 min-w-0">
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-600 dark:text-slate-400">Project Management</p>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Projects</h1>
-              <p className="text-sm text-slate-700 dark:text-slate-400">Manage your project portfolio with advanced insights</p>
+            <div className="space-y-3 flex-1 min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80 flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-blue-400" /> Portfolio Manager
+              </p>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Projects</h1>
+              <p className="text-sm md:text-base text-slate-300 max-w-2xl leading-relaxed">Manage your project portfolio with advanced insights, team allocations, and real-time health metrics.</p>
             </div>
             {isAdmin && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.href = '/projects/new'}
-                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition shadow-lg hover:shadow-xl whitespace-nowrap"
+                className="premium-button-primary z-10"
               >
                 <Plus className="h-4 w-4 flex-shrink-0" />
                 New Project
@@ -120,24 +123,47 @@ export const ProjectsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          className="grid grid-cols-2 md:grid-cols-4 gap-5"
         >
-          {statCards.map((card, idx) => {
+          {statCardsConfig.map((card, idx) => {
             const value = card.key === 'all' ? statusCounts.all : 
                          card.key === 'active' ? statusCounts.active :
                          card.key === 'planning' ? statusCounts.planning :
                          statusCounts.completed;
+            const IconComponent = card.icon;
             
-              return (
+            return (
               <motion.div
                 key={card.key}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + idx * 0.05 }}
-                className={`rounded-2xl border-t-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-sm hover:shadow-md transition ${card.color}`}
+                className="premium-card relative overflow-hidden group p-5 border border-white/5 bg-gradient-to-b from-[#131B2E] to-[#0E1424] rounded-2xl shadow-xl"
               >
-                <p className="text-xs uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400 mb-3">{card.label}</p>
-                <p className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-1">{value}</p>
+                {/* Glow effect on hover */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"
+                  style={{ backgroundColor: card.bgGlow }}
+                />
+                
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <p className="text-xs uppercase tracking-wider font-semibold text-slate-400">{card.label}</p>
+                    <p className="text-4xl font-extrabold text-white tracking-tight">{value}</p>
+                  </div>
+                  <div className={`p-2.5 rounded-xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform duration-300 ${card.color}`}>
+                    <IconComponent className="h-5 w-5" />
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-400 font-medium">{card.trend}</span>
+                  {card.trendUp !== null && (
+                    <span className={`font-bold ${card.trendUp ? 'text-emerald-400' : 'text-amber-400'}`}>
+                      {card.trendUp ? '↑ active' : '↓ queue'}
+                    </span>
+                  )}
+                </div>
               </motion.div>
             );
           })}
@@ -148,34 +174,33 @@ export const ProjectsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm hover:shadow-md"
+          className="premium-card p-4 bg-[#131B2E]/80 backdrop-blur-md border border-white/5 rounded-2xl"
         >
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Search Bar */}
-              <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-slate-400" />
+            <div className="relative w-full lg:flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search projects..."
+                placeholder="Search portfolio projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border-0 bg-white dark:bg-slate-800/50 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/30"
+                className="premium-input pl-11 pr-4 py-2.5 bg-[#0B0F19] border border-white/5 focus:border-blue-500 rounded-xl transition-all"
               />
             </div>
 
             {/* Filter Controls */}
-            <div className="flex flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-400 dark:text-slate-400" />
-                <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-1">
-                  {([" All", "Planning", "Active", "Completed"] as const).map((status) => (
+            <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+              <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+                <div className="flex rounded-xl border border-white/5 bg-[#0B0F19] p-1">
+                  {(["All", "Planning", "Active", "Completed"] as const).map((status) => (
                     <button
                       key={status}
                       onClick={() => setStatusFilter(status)}
-                      className={`rounded px-3 py-1.5 text-xs font-medium transition ${ 
+                      className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${ 
                         statusFilter === status
-                          ? "bg-blue-600 text-white shadow-sm"
-                          : "text-gray-600 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-300"
+                          ? "bg-blue-600 text-white shadow-md shadow-blue-900/35"
+                          : "text-slate-400 hover:text-white hover:bg-white/5"
                       }`}
                     >
                       {status}
@@ -187,43 +212,65 @@ export const ProjectsPage = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-blue-500/30"
+                className="premium-input px-3.5 py-2 w-auto bg-[#0B0F19] border border-white/5 rounded-xl text-xs font-semibold cursor-pointer"
               >
-                <option value="created">Created Date</option>
-                <option value="name">Name</option>
-                <option value="progress">Progress</option>
-                <option value="status">Status</option>
+                <option value="created">Sort: Created Date</option>
+                <option value="name">Sort: Name</option>
+                <option value="progress">Sort: Progress</option>
+                <option value="status">Sort: Status</option>
               </select>
 
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-400">
+              {/* Grid / List View Toggle */}
+              <div className="flex items-center rounded-xl border border-white/5 bg-[#0B0F19] p-1">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === "grid" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
+                  }`}
+                  title="Grid View"
+                >
+                  <Grid className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === "list" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
+                  }`}
+                  title="List View"
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="rounded-xl border border-white/5 bg-[#0B0F19] px-3.5 py-2.5 text-xs font-bold text-slate-300">
                 {filteredAndSortedProjects.length} projects
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Projects Grid */}
+        {/* Projects Container */}
         {filteredAndSortedProjects.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-12 text-center shadow-sm hover:shadow-md">
-            {searchQuery || statusFilter !== " All" ? (
+          <div className="premium-empty-state p-12">
+            {searchQuery || statusFilter !== "All" ? (
               <div className="space-y-3">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-white dark:bg-slate-800">
-                  <Search className="h-6 w-6 text-gray-400 dark:text-slate-400" />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 border border-white/5">
+                  <Search className="h-6 w-6 text-slate-400" />
                 </div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">No projects found</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Try adjusting your filters</p>
+                <h3 className="text-sm font-semibold text-white">No projects found</h3>
+                <p className="text-xs text-slate-400">Try adjusting your filters</p>
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20">
                   <Layers3 className="h-6 w-6 text-blue-400" />
                 </div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">No projects yet</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Create your first project to get started</p>
+                <h3 className="text-sm font-semibold text-white">No projects yet</h3>
+                <p className="text-xs text-slate-400">Create your first project to get started</p>
                 {isAdmin && (
                   <button
                     onClick={() => window.location.href = '/projects/new'}
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+                    className="mt-4 premium-button-primary"
                   >
                     <Plus className="h-3 w-3" />
                     Create project
@@ -237,13 +284,18 @@ export const ProjectsPage = () => {
             variants={listVariants}
             initial="hidden"
             animate="show"
-            className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            className={
+              viewMode === "grid"
+                ? "grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                : "flex flex-col gap-4"
+            }
           >
             {filteredAndSortedProjects.map((project) => (
               <ProjectCard
                 key={project._id}
                 project={project}
                 onUpdate={loadProjects}
+                viewMode={viewMode}
               />
             ))}
           </motion.div>

@@ -98,8 +98,8 @@ export const CommentForm = ({ taskId, onAdded }: CommentFormProps) => {
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
-        className={`rounded-2xl border-2 transition-all ${
-          dragging ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20" : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+        className={`rounded-2xl border transition-all ${
+          dragging ? "border-blue-500 bg-blue-950/20" : "border-white/10 bg-[#0F172A]"
         } shadow-sm overflow-hidden`}
       >
         {/* Textarea */}
@@ -158,7 +158,7 @@ export const CommentForm = ({ taskId, onAdded }: CommentFormProps) => {
                 <Smile className="h-4 w-4" />
               </button>
               {showEmojiPicker && (
-                <div className="absolute bottom-full left-0 mb-2 flex flex-wrap gap-1 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-2 shadow-lg z-10" style={{ width: '200px' }}>
+                <div className="absolute bottom-full left-0 mb-2 flex flex-wrap gap-1 rounded-xl bg-[#1A2235] border border-white/5 p-2 shadow-lg z-10" style={{ width: '200px' }}>
                   {EMOJIS.map((emoji) => (
                     <button
                       key={emoji}
@@ -168,7 +168,7 @@ export const CommentForm = ({ taskId, onAdded }: CommentFormProps) => {
                         setContent(prev => prev + emoji);
                         setShowEmojiPicker(false);
                       }}
-                      className="hover:bg-gray-100 dark:hover:bg-slate-700 rounded p-1 text-lg leading-none"
+                      className="hover:bg-white/5 rounded p-1 text-lg leading-none"
                     >
                       {emoji}
                     </button>

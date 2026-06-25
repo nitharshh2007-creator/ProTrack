@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { UserPlus, Copy, MoreVertical, Trash2, Lock, Eye } from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/store/auth.store";
@@ -28,7 +26,7 @@ interface Project {
 }
 
 export const TeamPage = () => {
-  const { token, user } = useAuth();
+  const { token, user: _user } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [stats, setStats] = useState<TeamStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -250,13 +248,13 @@ export const TeamPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-slate-950/90 via-slate-900/80 to-[#101728] px-8 py-12 shadow-xl"
+        className="premium-hero"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.25),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(124,58,237,0.18),_transparent_35%)]" />
-        <div className="relative space-y-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Administration</p>
-          <h1 className="text-3xl font-bold text-white">Team Management</h1>
-          <p className="text-sm text-slate-400">Manage workspace members, invitations and project assignments</p>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)] pointer-events-none" />
+        <div className="relative space-y-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">Administration</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Team Management</h1>
+          <p className="text-sm md:text-base text-[#CBD5E1] max-w-2xl leading-relaxed">Manage workspace members, invitations and project assignments</p>
         </div>
       </motion.div>
 
@@ -265,23 +263,23 @@ export const TeamPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid gap-4 grid-cols-2 md:grid-cols-4"
+        className="grid gap-6 grid-cols-2 md:grid-cols-4"
       >
-        <div className="rounded-[20px] bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 p-6 shadow-md border border-slate-200/40">
-          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-600">Total Members</p>
-          <p className="text-2xl font-bold text-slate-900 mt-2">{stats?.totalMembers ?? 0}</p>
+        <div className="premium-card">
+          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-400">Total Members</p>
+          <p className="text-2xl font-bold text-slate-100 mt-2">{stats?.totalMembers ?? 0}</p>
         </div>
-        <div className="rounded-[20px] bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 p-6 shadow-md border border-slate-200/40">
-          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-600">Active Members</p>
-          <p className="text-2xl font-bold text-slate-900 mt-2">{stats?.activeMembers ?? 0}</p>
+        <div className="premium-card">
+          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-400">Active Members</p>
+          <p className="text-2xl font-bold text-slate-100 mt-2">{stats?.activeMembers ?? 0}</p>
         </div>
-        <div className="rounded-[20px] bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 p-6 shadow-md border border-slate-200/40">
-          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-600">Pending Invites</p>
-          <p className="text-2xl font-bold text-slate-900 mt-2">{stats?.pendingInvites ?? 0}</p>
+        <div className="premium-card">
+          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-400">Pending Invites</p>
+          <p className="text-2xl font-bold text-slate-100 mt-2">{stats?.pendingInvites ?? 0}</p>
         </div>
-        <div className="rounded-[20px] bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 p-6 shadow-md border border-slate-200/40">
-          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-600">Projects</p>
-          <p className="text-2xl font-bold text-slate-900 mt-2">{stats?.projects ?? 0}</p>
+        <div className="premium-card">
+          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-400">Projects</p>
+          <p className="text-2xl font-bold text-slate-100 mt-2">{stats?.projects ?? 0}</p>
         </div>
       </motion.div>
 
@@ -290,48 +288,48 @@ export const TeamPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="flex gap-3"
+        className="flex gap-4 items-end flex-wrap"
       >
-        <button
-          onClick={() => setInviteModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-md hover:shadow-lg"
-        >
-          <UserPlus className="h-4 w-4" />
-          Invite Member
-        </button>
-        <button
-          onClick={() => setLinkInputModalOpen(true)}
-          disabled={generatingLink}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-900 font-medium text-sm transition shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {generatingLink ? (
-            <Spinner className="h-4 w-4" />
-          ) : (
-            <Copy className="h-4 w-4" />
-          )}
-          Generate Link
-        </button>
-      </motion.div>
-
-      {/* Project Filter */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-      >
-        <label className="text-sm font-semibold text-slate-700 block mb-2">Filter by Project</label>
-        <select
-          value={selectedProjectId}
-          onChange={(e) => setSelectedProjectId(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-sm"
-        >
-          <option value="all">All Projects</option>
-          {projects.map((project) => (
-            <option key={project._id} value={project._id}>
-              {project.title}
-            </option>
-          ))}
-        </select>
+        <div>
+          <button
+            onClick={() => setInviteModalOpen(true)}
+            className="premium-button-primary"
+          >
+            <UserPlus className="h-4 w-4" />
+            Invite Member
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={() => setLinkInputModalOpen(true)}
+            disabled={generatingLink}
+            className="premium-button-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {generatingLink ? (
+              <Spinner className="h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+            Generate Link
+          </button>
+        </div>
+        
+        {/* Project Filter */}
+        <div className="flex-grow md:flex-grow-0 min-w-[200px]">
+          <label className="text-xs font-semibold text-slate-400 block mb-2 uppercase tracking-wider">Filter by Project</label>
+          <select
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProjectId(e.target.value)}
+            className="premium-input"
+          >
+            <option value="all">All Projects</option>
+            {projects.map((project) => (
+              <option key={project._id} value={project._id}>
+                {project.title}
+              </option>
+            ))}
+          </select>
+        </div>
       </motion.div>
 
       {/* Error */}
@@ -339,9 +337,9 @@ export const TeamPage = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[20px] bg-red-50 border border-red-200/60 p-4 shadow-md"
+          className="rounded-lg bg-red-950/20 border border-red-900/30 p-4"
         >
-          <p className="text-sm font-medium text-red-700">{error}</p>
+          <p className="text-sm font-medium text-red-400">{error}</p>
         </motion.div>
       )}
 
@@ -350,9 +348,9 @@ export const TeamPage = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[20px] bg-green-50 border border-green-200/60 p-4 shadow-md"
+          className="rounded-lg bg-green-950/20 border border-green-900/30 p-4"
         >
-          <p className="text-sm font-medium text-green-700">{success}</p>
+          <p className="text-sm font-medium text-green-400">{success}</p>
         </motion.div>
       )}
 
@@ -361,10 +359,10 @@ export const TeamPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="rounded-[20px] bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 shadow-md border border-slate-200/40 overflow-hidden"
+        className="premium-table-container"
       >
-        <div className="p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-600 mb-6">
+        <div className="p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 mb-6">
             {selectedProjectId === "all" ? "Workspace Members" : "Project Members"}
           </p>
 
@@ -372,22 +370,22 @@ export const TeamPage = () => {
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <Spinner className="h-8 w-8 mx-auto mb-3" />
-                <p className="text-sm text-slate-600">Loading team members...</p>
+                <p className="text-sm text-slate-400">Loading team members...</p>
               </div>
             </div>
           ) : error ? (
             <div className="text-center py-12">
-              <p className="text-sm text-red-600 font-medium">{error}</p>
+              <p className="text-sm text-red-400 font-medium">{error}</p>
               <button
                 onClick={() => fetchData()}
-                className="mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition"
+                className="mt-4 premium-button-primary"
               >
                 Retry
               </button>
             </div>
           ) : projectMembers.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-slate-600 font-medium">No team members</p>
+              <p className="text-slate-350 font-medium">No team members</p>
               <p className="text-sm text-slate-500 mt-1">
                 {selectedProjectId === "all"
                   ? "Invite members to get started"
@@ -396,71 +394,61 @@ export const TeamPage = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="premium-table">
                 <thead>
-                  <tr className="border-b border-slate-200/60">
-                    <th className="text-left py-3 px-4 font-semibold text-xs uppercase tracking-wider text-slate-700">
-                      Name
-                    </th>
-                    <th className="text-left py-3 px-4 font-semibold text-xs uppercase tracking-wider text-slate-700">
-                      Email
-                    </th>
-                    <th className="text-left py-3 px-4 font-semibold text-xs uppercase tracking-wider text-slate-700">
-                      Role
-                    </th>
-                    <th className="text-left py-3 px-4 font-semibold text-xs uppercase tracking-wider text-slate-700">
-                      Joined
-                    </th>
-                    <th className="text-right py-3 px-4 font-semibold text-xs uppercase tracking-wider text-slate-700">
-                      Actions
-                    </th>
+                  <tr>
+                    <th className="premium-table-th">Name</th>
+                    <th className="premium-table-th">Email</th>
+                    <th className="premium-table-th">Role</th>
+                    <th className="premium-table-th">Joined</th>
+                    <th className="premium-table-th text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {projectMembers.map((member) => (
                     <tr
                       key={member._id}
-                      className="border-b border-slate-200/40 hover:bg-slate-100/50 transition"
+                      className="premium-table-row"
                     >
-                      <td className="py-3 px-4 text-slate-900 font-medium">{member.name}</td>
-                      <td className="py-3 px-4 text-slate-600 text-sm">{member.email}</td>
-                      <td className="py-3 px-4">
-                        <span className="inline-block px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200/50">
+                      <td className="premium-table-td font-medium text-slate-200">{member.name}</td>
+                      <td className="premium-table-td text-slate-400 text-sm">{member.email}</td>
+                      <td className="premium-table-td">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold border border-blue-500/20">
                           {member.role}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-sm text-slate-600">
+                      <td className="premium-table-td text-sm text-slate-450">
                         {new Date(member.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="py-3 px-4 text-right relative">
+                      <td className="premium-table-td text-right relative">
                         <button
                           onClick={() =>
                             setOpenMenu(openMenu === member._id ? null : member._id)
                           }
-                          className="p-1 hover:bg-slate-200/50 rounded transition"
+                          className="p-1.5 hover:bg-slate-800/80 rounded-lg transition"
                         >
-                          <MoreVertical className="h-4 w-4 text-slate-600" />
+                          <MoreVertical className="h-4 w-4 text-slate-400" />
                         </button>
                         {openMenu === member._id && (
                           <motion.div
                             initial={{ opacity: 0, y: -8 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="absolute right-0 top-8 bg-white border border-slate-200/60 rounded-lg shadow-lg z-10 min-w-32 overflow-hidden"
+                            className="absolute right-0 top-10 w-36 premium-dropdown"
                           >
-                            <button className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-200/40 font-medium">
-                              <Eye className="h-3 w-3" /> View
+                            <button className="premium-dropdown-item">
+                              <Eye className="h-3.5 w-3.5" /> View
                             </button>
                             <button
                               onClick={() => handleBlockMember(member._id)}
-                              className="w-full px-4 py-2 text-left text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2 border-b border-slate-200/40 font-medium"
+                              className="premium-dropdown-item text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
                             >
-                              <Lock className="h-3 w-3" /> Block
+                              <Lock className="h-3.5 w-3.5" /> Block
                             </button>
                             <button
                               onClick={() => handleRemoveMember(member._id)}
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                              className="premium-dropdown-item premium-dropdown-item-danger"
                             >
-                              <Trash2 className="h-3 w-3" /> Remove
+                              <Trash2 className="h-3.5 w-3.5" /> Remove
                             </button>
                           </motion.div>
                         )}
@@ -478,7 +466,7 @@ export const TeamPage = () => {
       <Modal open={inviteModalOpen} onClose={() => setInviteModalOpen(false)} title="Invite Team Member">
         <div className="space-y-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
               Email Address
             </label>
             <input
@@ -486,15 +474,15 @@ export const TeamPage = () => {
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
               placeholder="member@example.com"
-              className="rounded-lg border border-slate-200/60 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="premium-input"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Role</label>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Role</label>
             <select
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
-              className="rounded-lg border border-slate-200/60 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="premium-input"
             >
               <option value="employee">Employee</option>
               <option value="manager">Manager</option>
@@ -504,14 +492,14 @@ export const TeamPage = () => {
             <button
               onClick={handleInviteMember}
               disabled={inviting}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="premium-button-primary flex-1 disabled:opacity-50"
             >
               {inviting ? "Sending..." : "Send Invite"}
             </button>
             <button
               onClick={() => setInviteModalOpen(false)}
               disabled={inviting}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200/60 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm transition shadow-md disabled:opacity-50"
+              className="premium-button-secondary flex-1 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -527,7 +515,7 @@ export const TeamPage = () => {
       >
         <div className="space-y-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
               Email (Optional)
             </label>
             <input
@@ -535,16 +523,16 @@ export const TeamPage = () => {
               value={linkEmail}
               onChange={(e) => setLinkEmail(e.target.value)}
               placeholder="member@example.com"
-              className="rounded-lg border border-slate-200/60 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="premium-input"
             />
             <p className="text-xs text-slate-500">If provided, the link will be sent via email</p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Role</label>
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Role</label>
             <select
               value={linkRole}
               onChange={(e) => setLinkRole(e.target.value)}
-              className="rounded-lg border border-slate-200/60 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              className="premium-input"
             >
               <option value="employee">Employee</option>
               <option value="manager">Manager</option>
@@ -554,14 +542,14 @@ export const TeamPage = () => {
             <button
               onClick={handleGenerateLink}
               disabled={generatingLink}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="premium-button-primary flex-1 disabled:opacity-50"
             >
               {generatingLink ? "Generating..." : "Generate"}
             </button>
             <button
               onClick={() => setLinkInputModalOpen(false)}
               disabled={generatingLink}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200/60 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm transition shadow-md disabled:opacity-50"
+              className="premium-button-secondary flex-1 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -573,24 +561,24 @@ export const TeamPage = () => {
       <Modal open={linkModalOpen} onClose={() => setLinkModalOpen(false)} title="Generate Invite Link">
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-2">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
               Invite Link
             </label>
-            <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-4 break-all text-sm text-slate-900 font-mono">
+            <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 break-all text-sm text-slate-350 font-mono">
               {inviteLink || "Generating..."}
             </div>
           </div>
           <div className="flex gap-3 pt-4">
             <button
               onClick={handleCopyLink}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition shadow-md flex items-center justify-center gap-2"
+              className="premium-button-primary flex-1"
             >
               <Copy className="h-4 w-4" />
               Copy Link
             </button>
             <button
               onClick={() => setLinkModalOpen(false)}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-slate-200/60 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm transition shadow-md"
+              className="premium-button-secondary flex-1"
             >
               Close
             </button>

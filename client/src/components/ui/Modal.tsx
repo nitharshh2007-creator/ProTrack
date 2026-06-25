@@ -35,19 +35,19 @@ export const Modal = ({ title, onClose, children, open = true, description, icon
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.93, y: 16 }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          className={`relative w-full ${sizeClasses[size]} glass-card rounded-2xl`}
+          className={`relative w-full ${sizeClasses[size]} bg-[#111827] border border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] rounded-[18px]`}
         >
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/8 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
             <div className="flex items-center gap-3">
-              {icon && <div className="text-blue-600 dark:text-blue-400">{icon}</div>}
+              {icon && <div className="text-blue-500">{icon}</div>}
               <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">{title}</h2>
-                {description && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{description}</p>}
+                <h2 className="text-sm font-bold text-[#F8FAFC]">{title}</h2>
+                {description && <p className="mt-1 text-xs text-[#94A3B8]">{description}</p>}
               </div>
             </div>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/8 dark:hover:text-slate-100 transition-colors"
+              className="rounded-lg p-1.5 text-[#94A3B8] hover:bg-white/5 hover:text-[#F8FAFC] transition-colors"
             >
               <X className="h-4 w-4" />
             </button>

@@ -19,24 +19,22 @@ const getEmptyStateContent = (status: TaskStatus) => {
     "In Progress": { icon: "⚡", title: "No tasks in progress", subtitle: "Drag tasks here when you start working" },
     Review: { icon: "📭", title: "No tasks in Review", subtitle: "Drag tasks here when ready for approval" },
     Blocked: { icon: "🚫", title: "No blocked tasks", subtitle: "Tasks with blockers will appear here" },
-    Completed: { icon: "✅", title: "No completed tasks", subtitle: "Finished tasks will appear here" }
   };
-  
-  return configs[status] || configs.Todo;
-};
 
+  return (configs as any)[status] || configs.Todo;
+};
 // Drop Zone Placeholder Component
 const DropZonePlaceholder = () => (
   <motion.div 
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
     exit={{ opacity: 0, scale: 0.95 }}
-    className="rounded-[20px] border-2 border-dashed border-blue-400 bg-blue-50/50 p-8 flex items-center justify-center text-center transition-all duration-200"
+    className="rounded-[18px] border-2 border-dashed border-blue-500/30 bg-blue-950/20 p-8 flex items-center justify-center text-center transition-all duration-200"
     style={{ minHeight: '120px' }}
   >
     <div className="text-center">
       <div className="text-2xl mb-2">📋</div>
-      <div className="text-sm font-medium text-blue-600">
+      <div className="text-sm font-medium text-blue-400">
         Drop Task Here
       </div>
     </div>
@@ -60,35 +58,32 @@ export const KanbanColumn = ({
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex flex-col bg-white dark:bg-slate-900/80 rounded-3xl border border-slate-200 dark:border-slate-800 transition-all duration-200 ${
+      className={`flex flex-col bg-[#131B2E] rounded-[20px] border transition-all duration-200 ${
         isOver
-          ? 'border-blue-400 border-2 border-dashed bg-blue-50 shadow-[0_0_25px_rgba(37,99,235,0.15)]'
-          : 'border-slate-200 dark:border-slate-800 shadow-lg'
+          ? 'border-blue-500 border-2 border-dashed bg-blue-950/20 shadow-[0_0_25px_rgba(37,99,235,0.15)]'
+          : 'border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.35)]'
       }`}
       style={{ minWidth: '380px', width: '380px', minHeight: '700px' }}
     >
       {/* Premium Column Header */}
       <div 
-        className="flex items-center justify-between px-6 py-4 rounded-t-3xl"
+        className="flex items-center justify-between px-6 py-4 border-b border-white/5"
         style={{ 
           height: '64px',
           borderTopLeftRadius: '18px',
           borderTopRightRadius: '18px',
-          backgroundColor: statusColor,
+          backgroundColor: '#131B2E',
           color: 'white'
         }}
       >
         <div className="flex items-center gap-3">
           <div 
-            className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: 'rgba(255,255,255,0.8)' }}
+            className="h-2.5 w-2.5 rounded-full"
+            style={{ backgroundColor: statusColor }}
           />
-          <span className="text-sm font-bold">{status}</span>
+          <span className="text-sm font-bold text-white">{status}</span>
         </div>
-        <span 
-          className="rounded-full px-3 py-1 text-xs font-bold"
-          style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
-        >
+        <span className="rounded-full bg-white/5 border border-white/5 px-2.5 py-0.5 text-xs font-bold text-slate-300">
           {tasks.length}
         </span>
       </div>
@@ -96,18 +91,14 @@ export const KanbanColumn = ({
       {/* Drop Zone */}
       <div
         ref={setNodeRef}
-        className={`flex-1 p-4 transition-all duration-200 ease-out ${
-          isOver 
-            ? 'bg-blue-50/70 dark:bg-blue-900/20' 
-            : 'bg-slate-50/30 dark:bg-slate-800/30'
-        }`}
+        className={`flex-1 p-4 transition-all duration-200 ease-out`}
         style={{ 
           minHeight: '600px',
-          borderBottomLeftRadius: '24px',
-          borderBottomRightRadius: '24px',
+          borderBottomLeftRadius: '20px',
+          borderBottomRightRadius: '20px',
           background: isOver 
-            ? 'rgba(37,99,235,0.08)'
-            : undefined
+            ? 'rgba(37,99,235,0.04)'
+            : '#0B0F19'
         }}
       >
         {/* Empty State */}
@@ -115,16 +106,15 @@ export const KanbanColumn = ({
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center text-center p-8 h-full"
+            className="flex flex-col items-center justify-center text-center p-8 h-full min-h-[350px]"
           >
             <div 
-              className="flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-              style={{ backgroundColor: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(10px)' }}
+              className="flex items-center justify-center w-12 h-12 rounded-xl mb-4 bg-white/5 border border-white/5"
             >
-              <span className="text-2xl">{emptyState.icon}</span>
+              <span className="text-xl">{emptyState.icon}</span>
             </div>
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">{emptyState.title}</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{emptyState.subtitle}</p>
+            <h3 className="text-sm font-semibold text-white mb-1">{emptyState.title}</h3>
+            <p className="text-xs text-slate-400">{emptyState.subtitle}</p>
           </motion.div>
         )}
 
