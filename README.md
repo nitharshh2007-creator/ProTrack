@@ -81,7 +81,7 @@
 ![Kanban](docs/admin-kanban.png)
 
 ### Analytics Overview
-![Analytics Overview](docs/admin-analytics-overview.png)
+![Analytics Overview](docs/admin-anaytics-overview.png)
 
 ### Analytics Charts
 ![Analytics Charts](docs/admin-analytics-charts.png)
