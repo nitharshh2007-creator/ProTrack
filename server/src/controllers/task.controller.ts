@@ -186,7 +186,6 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.userId;
     const userRole = req.user?.role;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
-    if (!isPrivileged(userRole)) return res.status(403).json({ message: "Access denied" });
 
     const workspaceId = await resolveWorkspaceId(userId, req.user?.workspaceId);
     if (!workspaceId) return res.status(401).json({ message: "Unauthorized" });
@@ -195,6 +194,24 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
       req.body as UpdateTaskBody;
     const task = await Task.findOne({ _id: toOid(req.params.id as string), workspaceId: toOid(workspaceId) });
     if (!task) return res.status(404).json({ message: "Task not found" });
+
+    // Employees can only update the status of tasks assigned to them
+    if (!isPrivileged(userRole)) {
+      const aId = (task.assignedTo as unknown as { _id: Types.ObjectId })?._id?.toString() ?? task.assignedTo?.toString();
+      if (aId !== userId) return res.status(403).json({ message: "Access denied" });
+      if (title !== undefined || description !== undefined || priority !== undefined ||
+          startDate !== undefined || project !== undefined || assignedTo !== undefined || dueDate !== undefined) {
+        return res.status(403).json({ message: "Employees can only update task status" });
+      }
+      if (status !== undefined) task.status = status;
+      await task.save();
+      const populatedEmp = await Task.findById(task._id)
+        .populate("project",    "title description status priority")
+        .populate("assignedTo", "name email role")
+        .populate("createdBy",  "name email role");
+      return res.status(200).json({ message: "Task updated successfully", task: populatedEmp });
+    }
+
     const previousAssignedTo = task.assignedTo.toString();
     const previousStatus = task.status;
     const previousTitle = task.title;

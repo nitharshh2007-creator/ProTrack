@@ -7,22 +7,13 @@ import type { Task, TaskPriority, TaskStatus } from "@/types";
 import { Spinner } from "@/components/ui/Spinner";
 import { TaskModal } from "@/components/tasks/TaskModal";
 import { useAuth } from "@/store/auth.store";
-import { useTheme } from "@/store/theme.store";
 import {
-  Search, Plus, User, Calendar, Eye, Edit, Trash,
+  Search, Plus, Eye, Edit, Trash,
   Clipboard, ArrowUpRight
 } from "lucide-react";
 
 const STATUS_OPTIONS: TaskStatus[] = ["Todo", "In Progress", "Review", "Blocked", "Completed"];
 const PRIORITY_OPTIONS: TaskPriority[] = ["Low", "Medium", "High"];
-
-const statusConfig = {
-  Todo: { bg: "#DBEAFE", text: "#2563EB", dot: "#94a3b8" },
-  "In Progress": { bg: "#CFFAFE", text: "#0891B2", dot: "#3b82f6" },
-  Review: { bg: "#E9D5FF", text: "#9333EA", dot: "#f59e0b" },
-  Blocked: { bg: "#FEE2E2", text: "#DC2626", dot: "#ef4444" },
-  Completed: { bg: "#DCFCE7", text: "#16A34A", dot: "#22c55e" },
-};
 
 const statusAccent: Record<string, string> = {
   Todo: '#60A5FA',
@@ -30,12 +21,6 @@ const statusAccent: Record<string, string> = {
   Review: '#F59E0B',
   Blocked: '#ef4444',
   Completed: '#22c55e',
-};
-
-const priorityConfig = {
-  Low: { bg: "#F3F4F6", text: "#6B7280" },
-  Medium: { bg: "#FEF3C7", text: "#D97706" },
-  High: { bg: "#FEE2E2", text: "#DC2626" },
 };
 
 export const TasksPage = () => {
@@ -57,7 +42,6 @@ export const TasksPage = () => {
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const { theme } = useTheme();
 
   const fetchTasks = () => {
     setLoading(true);
@@ -164,140 +148,155 @@ export const TasksPage = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Hero Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="premium-hero"
+        className="relative overflow-hidden rounded-[24px] border border-white/5 bg-gradient-to-br from-slate-950 via-[#0B0F19] to-slate-950 p-8 md:p-10 shadow-[0_24px_50px_rgba(0,0,0,0.6)]"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
-        <div className="relative space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">Task Management</p>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Tasks</h1>
-          <p className="text-sm md:text-base text-[#CBD5E1] max-w-2xl leading-relaxed">Organize, track and collaborate on all project work</p>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.12),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(147,51,234,0.08),_transparent_45%)]" />
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 border border-blue-500/20">
+              Workspace Core
+            </div>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Tasks</h1>
+            <p className="text-sm text-slate-400 max-w-xl leading-relaxed">
+              Organize, track and collaborate on all project work with team members.
+            </p>
+          </div>
+          
+          {canManage && (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="premium-button-primary shrink-0 self-start md:self-center"
+            >
+              <Plus className="h-4 w-4" />
+              New Task
+            </button>
+          )}
         </div>
       </motion.div>
 
+      {/* Filter / Search Toolbar */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-[20px] border border-gray-200 dark:border-slate-800 backdrop-blur-[20px] shadow-xl bg-white dark:bg-slate-900/80"
+        className="premium-card p-4 bg-[#131B2E]/80 backdrop-blur-md border border-white/5 rounded-2xl"
       >
-        <div className="p-6 pb-4">
-          <div className="relative max-w-4xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          {/* Search Bar */}
+          <div className="relative w-full lg:flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
             <input
               type="text"
               placeholder="Search tasks, projects, assignees, comments..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-[20px] border-0 bg-white dark:bg-slate-800/50 pl-12 pr-4 py-4 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 shadow-sm outline-none backdrop-blur-sm transition-all focus:bg-white dark:focus:bg-slate-800 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.1)] focus:ring-1 focus:ring-blue-400"
-              style={{ minWidth: '600px', maxWidth: '700px' }}
+              className="premium-input pl-10 pr-4 py-2 bg-[#0B0F19] border border-white/5 focus:border-blue-500 rounded-xl transition-all text-sm"
             />
           </div>
-        </div>
 
-        <div className="flex items-center justify-between px-6 pb-6">
-          <div className="flex items-center gap-3">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "")}
-              className="rounded-xl border-0 bg-slate-900 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 focus:ring-2 focus:ring-slate-700"
-            >
-              <option value="">Status</option>
-              {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-
-            <select
-              value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | "")}
-              className="rounded-xl border-0 bg-slate-900 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 focus:ring-2 focus:ring-slate-700"
-            >
-              <option value="">Priority</option>
-              {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-
-            <select
-              value={assigneeFilter}
-              onChange={(e) => setAssigneeFilter(e.target.value)}
-              className="rounded-xl border-0 bg-slate-900 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 focus:ring-2 focus:ring-slate-700"
-            >
-              <option value="">Assignee</option>
-              {assignees.map((u) => <option key={u._id} value={u._id}>{u.name}</option>)}
-            </select>
-
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="rounded-xl border-0 bg-slate-900 px-3 py-2 text-sm text-white shadow-sm transition hover:bg-slate-800 focus:ring-2 focus:ring-slate-700"
-            >
-              <option value="dueDate">Due Date</option>
-              <option value="priority">Priority</option>
-              <option value="title">Title</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {canManage && (
-              <button
-                onClick={() => setModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-slate-900 dark:text-slate-100 shadow-sm transition hover:bg-blue-700"
+          {/* Filter Controls */}
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
+            <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "")}
+                className="premium-input px-3 py-2 w-auto bg-[#0B0F19] border border-white/5 rounded-xl text-xs font-semibold cursor-pointer text-slate-350"
               >
-                <Plus className="h-4 w-4" />
-                New Task
-              </button>
-            )}
+                <option value="">All Statuses</option>
+                {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
 
-            {(search || statusFilter || priorityFilter || assigneeFilter) && (
-              <button
-                onClick={clearFilters}
-                className="rounded-xl bg-red-500/20 px-3 py-2 text-sm font-medium text-red-400 shadow-sm transition hover:bg-red-500/30"
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | "")}
+                className="premium-input px-3 py-2 w-auto bg-[#0B0F19] border border-white/5 rounded-xl text-xs font-semibold cursor-pointer text-slate-350"
               >
-                Clear
-              </button>
-            )}
+                <option value="">All Priorities</option>
+                {PRIORITY_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+
+              <select
+                value={assigneeFilter}
+                onChange={(e) => setAssigneeFilter(e.target.value)}
+                className="premium-input px-3 py-2 w-auto bg-[#0B0F19] border border-white/5 rounded-xl text-xs font-semibold cursor-pointer text-slate-350"
+              >
+                <option value="">All Assignees</option>
+                {assignees.map((u) => <option key={u._id} value={u._id}>{u.name}</option>)}
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                className="premium-input px-3 py-2 w-auto bg-[#0B0F19] border border-white/5 rounded-xl text-xs font-semibold cursor-pointer text-slate-350"
+              >
+                <option value="dueDate">Sort: Due Date</option>
+                <option value="priority">Sort: Priority</option>
+                <option value="title">Sort: Title</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {(search || statusFilter || priorityFilter || assigneeFilter) && (
+                <button
+                  onClick={clearFilters}
+                  className="rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-3 py-2 text-xs font-bold text-red-400"
+                >
+                  Clear Filters
+                </button>
+              )}
+              <div className="rounded-xl border border-white/5 bg-[#0B0F19] px-3.5 py-2 text-xs font-bold text-slate-400 shrink-0">
+                {filtered.length} tasks
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>
 
+      {/* Loading State */}
       {loading && (
-        <div className="flex justify-center pt-20">
-          <Spinner className="h-8 w-8" />
+        <div className="flex justify-center py-20">
+          <Spinner className="h-8 w-8 text-blue-400" />
         </div>
       )}
 
+      {/* Error State */}
       {!loading && error && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="rounded-2xl bg-red-500/20 border border-red-800 p-6 text-center"
+          className="premium-card p-6 border-red-950/20 bg-red-950/10 text-center"
         >
           <p className="text-red-400 mb-4">{error}</p>
-          <button onClick={fetchTasks} className="text-red-400 font-semibold hover:underline">
-            Retry
+          <button onClick={fetchTasks} className="premium-button-danger text-xs px-4 py-2">
+            Retry Loading
           </button>
         </motion.div>
       )}
 
+      {/* Empty State */}
       {!loading && !error && filtered.length === 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-gray-200 dark:border-slate-800 py-16"
+          className="premium-empty-state py-16"
         >
-          <Clipboard className="h-12 w-12 text-slate-600" />
+          <Clipboard className="h-10 w-10 text-slate-600 mb-3" />
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-slate-100 mb-1">
-              {tasks.length === 0 ? "No Tasks Yet" : "No Tasks Match Filters"}
+            <h3 className="text-sm font-semibold text-white mb-1">
+              {tasks.length === 0 ? "No Tasks Yet" : "No Matching Tasks"}
             </h3>
-            <p className="text-slate-400 mb-4">
-              {tasks.length === 0 ? "Create your first task to get started" : "Try adjusting your search criteria"}
+            <p className="text-xs text-slate-400 mb-4 max-w-xs mx-auto">
+              {tasks.length === 0 ? "Get started by adding your first task to the board." : "Try widening your filters or search keywords."}
             </p>
             {canManage && tasks.length === 0 && (
               <button
                 onClick={() => setModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-slate-100 hover:bg-blue-700 transition"
+                className="premium-button-primary"
               >
                 <Plus className="h-4 w-4" />
                 Create Task
@@ -307,43 +306,44 @@ export const TasksPage = () => {
         </motion.div>
       )}
 
+      {/* Tasks Grid */}
       {!loading && !error && filtered.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="grid gap-6"
-          style={
-            theme === 'light'
-              ? { gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', overflow: 'visible' }
-              : undefined
-          }
+          transition={{ delay: 0.15 }}
+          className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
         >
           {filtered.map((task, index) => (
             <motion.div
               key={task._id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              whileHover={{ y: -8, boxShadow: '0 25px 50px rgba(37,99,235,0.15)' }}
-              className="relative group bg-white dark:bg-slate-900/80 rounded-3xl border border-gray-200 dark:border-slate-800 p-6 shadow-lg transition-all duration-300"
-              style={{ boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)', minWidth: '420px' }}
+              transition={{ delay: index * 0.04 }}
+              whileHover={{ y: -4 }}
+              className="premium-card flex flex-col justify-between relative bg-[#131B2E] border border-white/5 p-5 shadow-2xl rounded-2xl min-h-[360px]"
             >
+              {/* Task Status Accent line */}
               <div
-                className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl transition-all duration-300 group-hover:shadow-sm"
-                style={{ backgroundColor: statusAccent[task.status] }}
+                className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
+                style={{ backgroundColor: statusAccent[task.status] || '#60A5FA' }}
               />
 
-              <div className="mb-4">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div>
-                    <div className="text-xs font-medium text-slate-400 mb-1">{task.project?.title || "Backend"}</div>
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 leading-tight text-lg">{task.title}</h3>
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      {task.project?.title || "Workspace"}
+                    </span>
+                    <h3 className="font-extrabold text-white text-base leading-snug mt-0.5 group-hover:text-blue-400">
+                      {task.title}
+                    </h3>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  
+                  <div className="flex items-center gap-1">
                     <Link
                       to={`/tasks/${task._id}`}
-                      className="rounded-lg p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/20 transition"
+                      className="rounded-lg p-1 text-slate-400 hover:text-blue-400 hover:bg-white/5 transition"
                       title="View Details"
                     >
                       <Eye className="h-4 w-4" />
@@ -352,7 +352,7 @@ export const TasksPage = () => {
                       <>
                         <button
                           onClick={() => handleEdit(task)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:text-amber-400 hover:bg-amber-500/20 transition"
+                          className="rounded-lg p-1 text-slate-400 hover:text-amber-400 hover:bg-white/5 transition"
                           title="Edit Task"
                         >
                           <Edit className="h-4 w-4" />
@@ -360,7 +360,7 @@ export const TasksPage = () => {
                         <button
                           onClick={() => handleDelete(task._id)}
                           disabled={deletingId === task._id}
-                          className="rounded-lg p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition"
+                          className="rounded-lg p-1 text-slate-400 hover:text-red-400 hover:bg-white/5 disabled:opacity-50 transition"
                           title="Delete Task"
                         >
                           <Trash className="h-4 w-4" />
@@ -369,139 +369,110 @@ export const TasksPage = () => {
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-slate-400 line-clamp-2 mb-3">{task.description}</p>
-                <div className="text-sm font-semibold text-slate-300">{task.project?.title || "ATRIVA"}</div>
+
+                <p className="text-xs leading-relaxed text-slate-400 line-clamp-2">{task.description}</p>
+
+                {/* Progress bar */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className="text-slate-400">Progress</span>
+                    <span className="font-bold text-white">{getProgressPercentage(task.status)}%</span>
+                  </div>
+                  <div className="h-1 rounded-full bg-[#0B0F19] overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${getProgressPercentage(task.status)}%` }}
+                      transition={{ duration: 0.8 }}
+                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Metadata Grid */}
+                <div className="grid grid-cols-2 gap-2 bg-[#0B0F19] rounded-xl p-3 border border-white/5">
+                  <div>
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block">Assignee</span>
+                    <span className="text-xs text-slate-300 font-semibold mt-0.5 block truncate">
+                      {task.assignedTo?.name || "Unassigned"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block">Due Date</span>
+                    <span className="text-xs text-slate-350 font-semibold mt-0.5 block truncate">
+                      {formatDate(task.dueDate)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Status Badges */}
+                <div className="flex flex-wrap gap-2 text-[9px] font-bold">
+                  <span
+                    className="inline-flex items-center rounded bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-blue-400"
+                  >
+                    {task.status}
+                  </span>
+                  <span
+                    className="inline-flex items-center rounded bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-amber-400"
+                  >
+                    {task.priority} Priority
+                  </span>
+                </div>
+
+                {/* Attachments & Comments counters */}
+                <div className="flex gap-2">
+                  <div className="rounded-full bg-white/5 border border-white/5 px-2.5 py-0.5 text-[10px] font-bold text-slate-400">
+                    💬 {commentCounts[task._id] || 0}
+                  </div>
+                  <div className="rounded-full bg-white/5 border border-white/5 px-2.5 py-0.5 text-[10px] font-bold text-slate-400">
+                    📎 {(task as any).attachments?.length || 0}
+                  </div>
+                </div>
               </div>
 
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-1 text-sm text-slate-400">
-                  <User className="h-4 w-4" />
-                  {task.assignedTo?.name || "Tara"}
-                </div>
-                <div className="flex items-center gap-1 text-sm text-slate-400">
-                  <Calendar className="h-4 w-4" />
-                  {formatDate(task.dueDate)}
-                </div>
-              </div>
-
-              <div className="mb-4 flex gap-2">
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
-                  style={{
-                    backgroundColor: statusConfig[task.status].bg,
-                    color: statusConfig[task.status].text
-                  }}
+              {/* Open Workspace Action */}
+              <div className="pt-4 border-t border-white/5 mt-4">
+                <Link
+                  to={`/tasks/${task._id}`}
+                  className="flex items-center justify-center w-full rounded-xl bg-blue-600/90 hover:bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow transition-all duration-300"
                 >
-                  🔴 {task.status}
-                </span>
-                <span
-                  className="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold"
-                  style={{
-                    backgroundColor: priorityConfig[task.priority].bg,
-                    color: priorityConfig[task.priority].text
-                  }}
-                >
-                  🔴 {task.priority}
-                </span>
-              </div>
-
-              <div className="mb-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-400">Progress</span>
-                  <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{getProgressPercentage(task.status)}%</span>
-                </div>
-                <div className="h-[10px] rounded-full bg-[#0F172A] overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${getProgressPercentage(task.status)}%` }}
-                    transition={{ duration: 0.9, delay: index * 0.06 }}
-                    className="h-full rounded-full"
-                    style={{ background: 'linear-gradient(90deg,#2563eb,#3b82f6)' }}
-                  />
-                </div>
-              </div>
-
-              <div className="mb-4 flex gap-2">
-                  <div className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-xs font-medium text-blue-400">
-                    💬{commentCounts[task._id] || 2}
-                  </div>
-                  <div className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-xs font-medium text-blue-400">
-                    📎{(task as any).attachments?.length || 3}
-                  </div>
-                  <div className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-xs font-medium text-blue-400">
-                    👥1
-                  </div>
-              </div>
-
-              {((task as any).attachments?.length || 3) > 0 && (
-                <div className="mb-4">
-                  <div className="text-xs font-medium text-[#94A3B8] mb-2">📎 Attachments</div>
-                  <div className="flex gap-2">
-                    <div className="rounded-lg bg-blue-500/10 px-2 py-1 text-xs text-blue-400 border border-blue-500/20">[design.pdf]</div>
-                    <div className="rounded-lg bg-blue-500/10 px-2 py-1 text-xs text-blue-400 border border-blue-500/20">[screenshot.png]</div>
-                    <div className="rounded-lg bg-blue-500/10 px-2 py-1 text-xs text-blue-400 border border-blue-500/20">[meeting.mp4]</div>
-                  </div>
-                </div>
-              )}
-
-              <div className="mb-6">
-                <div className="text-xs font-medium text-slate-400 mb-2">Recent Activity</div>
-                <div className="space-y-1 text-xs text-slate-400">
-                  <div>• Tara uploaded design.pdf</div>
-                  <div>• Backend moved to {task.status}</div>
-                </div>
-              </div>
-
-              <div className="mb-4 text-xs text-slate-500">
-                Last updated 2h ago
-              </div>
-
-              <Link
-                to={`/tasks/${task._id}`}
-                className="block w-full rounded-2xl px-4 py-3 text-sm font-semibold text-slate-900 dark:text-slate-100 shadow transition-all duration-300 hover:shadow-lg"
-                style={{ background: 'linear-gradient(135deg,#2563eb,#3b82f6)' }}
-              >
-                <div className="flex items-center justify-center gap-2">
                   Open Workspace
-                  <ArrowUpRight className="h-4 w-4" />
-                </div>
-              </Link>
+                  <ArrowUpRight className="h-3.5 w-3.5 ml-1.5" />
+                </Link>
+              </div>
             </motion.div>
           ))}
         </motion.div>
       )}
 
+      {/* Delete Confirmation Dialog */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md mx-4 shadow-2xl border border-gray-200 dark:border-slate-800"
+            className="mx-4 w-full max-w-sm rounded-2xl bg-[#131B2E] border border-white/10 p-6 shadow-2xl"
           >
             <div className="text-center">
-              <div className="mb-4">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20">
-                  <Trash className="h-8 w-8 text-red-400" />
-                </div>
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 border border-red-500/20">
+                <Trash className="h-6 w-6 text-red-500" />
               </div>
-              <h3 className="text-xl font-bold text-slate-100 mb-2">Delete Task</h3>
-              <p className="text-slate-400 mb-6">
+              <h3 className="mb-2 text-lg font-bold text-white">Delete Task</h3>
+              <p className="mb-6 text-sm text-slate-400">
                 Are you sure you want to delete this task? This action cannot be undone.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={cancelDelete}
-                  className="flex-1 rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                  className="flex-1 premium-button-secondary py-2 text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => confirmDelete(deleteConfirmId)}
                   disabled={deletingId === deleteConfirmId}
-                  className="flex-1 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-slate-900 dark:text-slate-100 hover:bg-red-700 disabled:opacity-50 transition"
+                  className="flex-1 premium-button-danger py-2 text-sm"
                 >
-                  {deletingId === deleteConfirmId ? 'Deleting...' : 'Delete Task'}
+                  {deletingId === deleteConfirmId ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
@@ -509,6 +480,7 @@ export const TasksPage = () => {
         </div>
       )}
 
+      {/* Task Modal */}
       {modalOpen && (
         <TaskModal
           task={editingTask}
@@ -522,3 +494,4 @@ export const TasksPage = () => {
     </div>
   );
 };
+

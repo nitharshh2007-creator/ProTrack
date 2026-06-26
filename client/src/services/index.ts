@@ -8,5 +8,6 @@ export { analyticsService } from "./analytics.service";
 export { inviteService } from "./invite.service";
 export { notificationService } from "./notification.service";
 export { settingsService } from "./settings.service";
+export { workspaceService } from "./workspace.service";
 export type { AnalyticsData, AnalyticsDataAdmin, AnalyticsDataEmployee } from "./analytics.service";
 export type { SettingsData } from "./settings.service";

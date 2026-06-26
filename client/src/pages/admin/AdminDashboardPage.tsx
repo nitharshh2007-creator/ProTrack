@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { Activity, Briefcase, Users, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -6,38 +6,24 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/store/auth.store";
+import { dashboardService, analyticsService } from "@/services";
+import type { AdminDashboardStats } from "@/types";
+import { formatDistanceToNow } from "date-fns";
 
-const stats = [
-  { label: "Total Projects", value: 22, icon: Briefcase, accent: "from-violet-500 to-fuchsia-500" },
-  { label: "Active Projects", value: 14, icon: Activity, accent: "from-fuchsia-500 to-pink-500" },
-  { label: "Employees", value: 68, icon: Users, accent: "from-cyan-400 to-blue-500" },
-  { label: "Tasks Completed", value: 1842, icon: CheckCircle, accent: "from-emerald-400 to-teal-500" },
-];
-
-const progressData = [
-  { name: "Week 1", progress: 34, productivity: 68 },
-  { name: "Week 2", progress: 48, productivity: 75 },
-  { name: "Week 3", progress: 63, productivity: 82 },
-  { name: "Week 4", progress: 78, productivity: 91 },
-  { name: "Week 5", progress: 92, productivity: 96 },
-];
-
-const statusData = [
-  { name: "Design", value: 26, color: "#a78bfa" },
-  { name: "Build", value: 44, color: "#ec4899" },
-  { name: "Launch", value: 30, color: "#22c55e" },
-];
-
-const recentActivity = [
-  { label: "Emma added 3 tasks to Orion redesign", time: "2m ago" },
-  { label: "New sprint roadmap published for Nova platform", time: "14m ago" },
-  { label: "Performance goal updated for Q3 delivery", time: "1h ago" },
-  { label: "Hiring interview scheduled with QA candidate", time: "3h ago" },
-];
+const chartColors: Record<string, string> = {
+  Todo: "#a78bfa",
+  "In Progress": "#ec4899",
+  Review: "#3b82f6",
+  Blocked: "#ef4444",
+  Completed: "#22c55e",
+};
 
 export const AdminDashboardPage = () => {
   const { isAuthenticated, isLoading, hasRole } = useAuth();
   const navigate = useNavigate();
+  const [statsData, setStatsData] = useState<AdminDashboardStats | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<any | null>(null);
+  const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
     if (!isLoading) {
@@ -45,17 +31,54 @@ export const AdminDashboardPage = () => {
         navigate("/login");
       } else if (!hasRole("admin")) {
         navigate("/employee/dashboard");
+      } else {
+        Promise.all([
+          dashboardService.getStats(),
+          analyticsService.getData()
+        ])
+          .then(([stats, analytics]) => {
+            setStatsData(stats as AdminDashboardStats);
+            setAnalyticsData(analytics);
+          })
+          .catch((err) => console.error("Error loading dashboard data:", err))
+          .finally(() => setFetching(false));
       }
     }
   }, [hasRole, isAuthenticated, isLoading, navigate]);
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading || fetching || !statsData) {
     return (
       <div className="flex min-h-[calc(100vh-160px)] items-center justify-center">
         <Spinner className="h-10 w-10" />
       </div>
     );
   }
+
+  const stats = [
+    { label: "Total Projects", value: statsData.totalProjects, icon: Briefcase, accent: "from-violet-500 to-fuchsia-500" },
+    { label: "Active Projects", value: statsData.activeProjects, icon: Activity, accent: "from-fuchsia-500 to-pink-500" },
+    { label: "Employees", value: statsData.activeMembers ?? 0, icon: Users, accent: "from-cyan-400 to-blue-500" },
+    { label: "Tasks Completed", value: statsData.completedTasks, icon: CheckCircle, accent: "from-emerald-400 to-teal-500" },
+  ];
+
+  const progressData = analyticsData?.completionTrend?.map((item: any) => ({
+    name: item.date,
+    progress: item.count,
+  })) || [
+    { name: "Week 1", progress: 0 },
+    { name: "Week 2", progress: 0 },
+    { name: "Week 3", progress: 0 },
+    { name: "Week 4", progress: 0 },
+  ];
+
+  const statusData = statsData.taskStatusDistribution.map((item) => ({
+    name: item.status,
+    value: item.count,
+    color: chartColors[item.status] || "#94a3b8",
+  })).filter((item) => item.value > 0);
+
+  const recentActivities = statsData.recentActivities || [];
+
 
   return (
     <div className="space-y-8">
@@ -161,12 +184,20 @@ export const AdminDashboardPage = () => {
             </div>
           </div>
           <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.label} className="rounded-3xl border border-white/8 bg-white dark:bg-slate-950/40 px-5 py-4 transition hover:border-violet-400/30 dark:hover:bg-slate-900/80">
-                <p className="text-sm text-slate-900 dark:text-slate-100">{activity.label}</p>
-                <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500">{activity.time}</p>
-              </div>
-            ))}
+            {recentActivities.length > 0 ? (
+              recentActivities.slice(0, 4).map((activity) => (
+                <div key={activity.id} className="rounded-3xl border border-white/8 bg-white dark:bg-slate-950/40 px-5 py-4 transition hover:border-violet-400/30 dark:hover:bg-slate-900/80">
+                  <p className="text-sm text-slate-900 dark:text-slate-100">
+                    <span className="font-semibold text-violet-400">{activity.title}</span> {activity.message}
+                  </p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500">
+                    {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="text-sm text-slate-400 py-4 text-center">No recent activity</div>
+            )}
           </div>
         </Card>
 
@@ -174,18 +205,20 @@ export const AdminDashboardPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Effort score</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">Employee performance</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">Global Progress</h2>
             </div>
             <Sparkles className="h-6 w-6 text-fuchsia-400" />
           </div>
           <div className="rounded-[28px] bg-white dark:bg-slate-950/70 p-6">
             <div className="mb-6 flex items-center justify-between gap-4">
-              <p className="text-xl font-semibold text-slate-900 dark:text-slate-100">91%</p>
-              <Badge variant="success">Strong</Badge>
+              <p className="text-xl font-semibold text-slate-900 dark:text-slate-100">{statsData.completionRate}%</p>
+              <Badge variant={statsData.completionRate >= 80 ? "success" : statsData.completionRate >= 50 ? "info" : "warning"}>
+                {statsData.completionRate >= 80 ? "Strong" : statsData.completionRate >= 50 ? "Steady" : "Behind"}
+              </Badge>
             </div>
             <div className="space-y-4 text-sm text-slate-400">
-              <p>Focus score is above average for cross-team collaboration and sprint delivery.</p>
-              <p>Engineering output has improved by 18% versus last month.</p>
+              <p>Overall task completion rate across the active workspace stands at {statsData.completionRate}%.</p>
+              <p>Keep tracking sprint cycles and active backlogs to optimize delivery velocities.</p>
             </div>
           </div>
             <div className="grid gap-3">

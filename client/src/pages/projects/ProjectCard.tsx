@@ -15,6 +15,7 @@ const statusColors = {
 interface ProjectCardProps {
   project: Project;
   onUpdate?: () => void;
+  viewMode?: "grid" | "list";
 }
 
 const cardVariants = {
@@ -26,7 +27,6 @@ const cardVariants = {
   }
 };
 
-const patternSvg = "data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='22' cy='22' r='6'/%3E%3Ccircle cx='6' cy='6' r='6'/%3E%3Ccircle cx='38' cy='6' r='6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E";
 
 export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
   const { hasRole } = useAuth();
@@ -56,7 +56,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
   
   const completedTasks = project.completedTasks ?? 0;
   const totalTasks = project.totalTasks ?? 0;
-  const memberCount = project.memberCount ?? project.members?.length ?? 0;
+  const memberCount = project.memberCount ?? project.teamMembers?.length ?? project.members?.length ?? 0;
   const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   
   const handleArchive = async (e: React.MouseEvent) => {
@@ -111,7 +111,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
 
   const isArchived = project.status === 'Completed';
   
-  const teamMembers = project.members?.slice(0, 4) || [];
+  const teamMembers = project.teamMembers?.slice(0, 4) || project.members?.slice(0, 4) || [];
   const extraMembers = Math.max(0, memberCount - 4);
   
   const dueDate = project.deadline ? new Date(project.deadline) : null;
@@ -122,42 +122,39 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
   return (
     <motion.article
       variants={cardVariants}
-      whileHover={{ y: -6 }}
-      className={`premium-card relative overflow-hidden p-0 block ${
+      whileHover={{ y: -4 }}
+      className={`premium-card relative overflow-hidden p-0 block bg-[#131B2E] border border-white/5 shadow-2xl rounded-2xl transition-all duration-300 ${
         isDeleting ? 'opacity-50 pointer-events-none' : ''
       }`}
       onClick={closeDropdown}
     >
-      <div className="relative h-44 overflow-hidden">
+      <div className="relative h-40 overflow-hidden">
         <Link to={`/projects/${project._id}`} className="block h-full">
           {project.coverImage ? (
             <>
               <img 
                 src={project.coverImage} 
                 alt={project.title} 
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" 
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#131B2E] via-transparent to-black/35" />
             </>
           ) : (
-            <div className={`h-full w-full bg-gradient-to-br ${statusColors[project.status]} flex items-center justify-center text-white relative overflow-hidden`}>
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `url('${patternSvg}')` }} />
-              <div className="text-5xl font-bold tracking-wider">
-                {project.title.charAt(0).toUpperCase()}
-              </div>
+            <div className="h-full w-full bg-gradient-to-br from-slate-900 to-[#0B0F19] relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#131B2E] via-transparent to-transparent" />
             </div>
           )}
         </Link>
         
         <div className="absolute left-4 top-4">
-          <div className={`inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r ${statusColors[project.status]} px-3 py-1 text-[10px] font-bold text-white shadow-sm`}>
-            <div className="h-1.5 w-1.5 rounded-full bg-white/80" />
+          <div className={`inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r ${statusColors[project.status]} px-2.5 py-0.5 text-[9px] font-bold text-white shadow-sm`}>
+            <div className="h-1 w-1 rounded-full bg-white" />
             {project.status}
           </div>
         </div>
         
         <div className="absolute right-4 top-4 flex items-center gap-2">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#131B2E] border border-white/10 px-3 py-1 text-[10px] font-bold text-white shadow-sm">
+          <div className="inline-flex items-center gap-1 rounded-full bg-[#131B2E]/90 border border-white/5 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-md">
             <TrendingUp className="h-3 w-3 text-blue-400" />
             {progress}%
           </div>
@@ -166,14 +163,14 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={handleDropdownClick}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 border border-white/5 text-white transition-all hover:bg-black/60"
+                className="flex h-6.5 w-6.5 items-center justify-center rounded-full bg-black/40 border border-white/5 text-white transition-all hover:bg-black/60"
                 title="Project Actions"
               >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="h-3.5 w-3.5" />
               </button>
               
               {showDropdown && (
-                <div className="absolute right-0 top-9 z-20 w-44 premium-dropdown">
+                <div className="absolute right-0 top-7.5 z-20 w-40 premium-dropdown">
                   <button
                     onClick={(e) => {
                       e.preventDefault();
@@ -183,7 +180,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
                     }}
                     className="premium-dropdown-item"
                   >
-                    <Edit className="h-3.5 w-3.5" />
+                    <Edit className="h-3 w-3" />
                     Edit Project
                   </button>
                   
@@ -191,7 +188,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
                     onClick={handleArchive}
                     className="premium-dropdown-item"
                   >
-                    <Archive className="h-3.5 w-3.5" />
+                    <Archive className="h-3 w-3" />
                     {isArchived ? 'Unarchive' : 'Archive'} Project
                   </button>
                   
@@ -206,7 +203,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
                     }}
                     className="premium-dropdown-item premium-dropdown-item-danger"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-3 w-3" />
                     Delete Project
                   </button>
                 </div>
@@ -217,7 +214,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
         
         {(isOverdue || isDueSoon) && (
           <div className="absolute bottom-4 right-4">
-            <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${
+            <div className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold ${
               isOverdue ? "bg-red-500/90 text-white" : "bg-amber-500/90 text-white"
             }`}>
               <Clock className="h-3 w-3" />
@@ -230,7 +227,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
       <Link to={`/projects/${project._id}`} className="block">
         <div className="space-y-4 p-5">
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white transition-colors group-hover:text-blue-400 leading-tight">
+            <h3 className="text-base font-bold text-white transition-colors group-hover:text-blue-400 leading-tight">
               {project.title}
             </h3>
             <p className="text-xs leading-relaxed text-slate-400 line-clamp-2">
@@ -238,8 +235,8 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
             </p>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-[10px]">
               <span className="font-semibold text-slate-400">Progress</span>
               <span className="font-bold text-white">{progress}%</span>
             </div>
@@ -253,36 +250,36 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-3">
-              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-450">
+              <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">
                 <CheckSquare className="h-3 w-3 text-slate-500" />
                 Tasks
               </div>
-              <div className="mt-1 space-y-0.5">
-                <div className="text-lg font-bold text-white">{completedTasks}</div>
-                <div className="text-[10px] text-slate-400">of {totalTasks} completed</div>
+              <div className="mt-1">
+                <div className="text-base font-bold text-white">{completedTasks}</div>
+                <div className="text-[9px] text-slate-500">of {totalTasks} completed</div>
               </div>
             </div>
             
             <div className="rounded-xl border border-white/5 bg-[#0B0F19] p-3">
-              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-450">
+              <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">
                 <Users className="h-3 w-3 text-slate-500" />
                 Team
               </div>
               <div className="mt-1 space-y-1.5">
-                <div className="text-lg font-bold text-white">{memberCount}</div>
+                <div className="text-base font-bold text-white">{memberCount}</div>
                 {teamMembers.length > 0 && (
                   <div className="flex items-center gap-1">
                     {teamMembers.map((member, idx) => (
                       <div
                         key={member._id || idx}
-                        className="h-5 w-5 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white ring-1 ring-[#0B0F19]"
+                        className="h-4.5 w-4.5 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-[8px] font-bold text-white ring-1 ring-[#0B0F19]"
                         style={{ marginLeft: idx > 0 ? '-4px' : '0' }}
                       >
                         {member.name?.charAt(0).toUpperCase() || '?'}
                       </div>
                     ))}
                     {extraMembers > 0 && (
-                      <div className="ml-0.5 h-5 w-5 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-[9px] font-bold text-slate-300">
+                      <div className="ml-0.5 h-4.5 w-4.5 rounded-full bg-white/5 border border-white/5 flex items-center justify-center text-[8px] font-bold text-slate-300">
                         +{extraMembers}
                       </div>
                     )}
@@ -292,8 +289,8 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1 border-t border-white/5">
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
+          <div className="flex items-center justify-between pt-2.5 border-t border-white/5">
+            <div className="flex items-center gap-1 text-[10px] text-slate-400 font-semibold">
               <CalendarDays className="h-3.5 w-3.5 text-slate-500" />
               {dueDate ? (
                 <span className={isOverdue ? "text-red-400" : isDueSoon ? "text-amber-400" : ""}>
@@ -304,9 +301,9 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
               )}
             </div>
             
-            <div className="flex items-center gap-1 text-xs font-semibold text-blue-400 opacity-0 transition-all duration-200 group-hover:opacity-100">
+            <div className="flex items-center gap-0.5 text-[10px] font-semibold text-blue-400 opacity-0 transition-all duration-200 group-hover:opacity-100">
               <span>View</span>
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+              <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
             </div>
           </div>
         </div>
