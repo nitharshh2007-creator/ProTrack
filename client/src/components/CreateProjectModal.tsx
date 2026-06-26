@@ -4,6 +4,7 @@ import { X, Calendar, AlertCircle, CheckCircle, Upload } from "lucide-react";
 import { projectService } from "@/services";
 import type { CreateProjectPayload } from "@/types";
 import { getStoredJson, setStoredJson } from "@/lib/storage";
+import { useAuth } from "@/store/auth.store";
 
 const FORM_STORAGE_KEY = "protrack:create-project-modal";
 
@@ -34,6 +35,36 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(form.coverImage || null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const [teamMembers, setTeamMembers] = useState<Array<{ _id: string; name: string; email: string }>>([]);
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState<string[]>(form.teamMembers || []);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const { token: authToken, user } = useAuth();
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+  React.useEffect(() => {
+    const fetchTeamMembers = async () => {
+      if (!authToken) return;
+      try {
+        setLoadingMembers(true);
+        const res = await fetch(`${baseURL}/team/members`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTeamMembers(data.members || []);
+        }
+      } catch (err) {
+        console.error("Failed to load team members", err);
+      } finally {
+        setLoadingMembers(false);
+      }
+    };
+    if (isOpen) {
+      void fetchTeamMembers();
+    }
+  }, [authToken, baseURL, isOpen]);
 
   const setField =
     (field: keyof CreateProjectPayload) =>
@@ -94,9 +125,12 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
       await projectService.create({
         ...form,
         deadline: form.deadline || undefined,
+        teamMembers: selectedTeamMembers,
       });
       localStorage.removeItem(FORM_STORAGE_KEY);
       setForm(emptyForm());
+      setSelectedTeamMembers([]);
+      setDropdownOpen(false);
       setImagePreview(null);
       onSuccess();
       onClose();
@@ -235,6 +269,72 @@ export const CreateProjectModal = ({ isOpen, onClose, onSuccess }: CreateProject
                         className="w-full rounded-2xl border border-white/10 bg-[#0F172A] px-5 py-3 text-base text-[#F8FAFC] outline-none transition-all duration-300 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
                       />
                     </div>
+
+                    {/* Team Members */}
+                    {(user?.role === "admin" || user?.role === "manager") && (
+                      <div>
+                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 block mb-2">
+                          Team Members
+                        </label>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            className="w-full rounded-2xl border border-white/10 bg-[#0F172A] px-5 py-3 text-base text-left flex justify-between items-center text-slate-300 outline-none transition-all duration-300 hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50"
+                          >
+                            <span>
+                              {selectedTeamMembers.length === 0
+                                ? "Select members..."
+                                : `Selected Members: ${selectedTeamMembers.length}`}
+                            </span>
+                            <span className={`text-slate-400 text-xs transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>▼</span>
+                          </button>
+
+                          {dropdownOpen && (
+                            <div className="absolute z-20 w-full mt-2 bg-[#0E1424] border border-white/5 rounded-xl shadow-2xl max-h-60 overflow-y-auto p-1.5 space-y-1 top-full left-0 backdrop-blur-md">
+                              {loadingMembers ? (
+                                <div className="flex items-center justify-center py-4">
+                                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                                </div>
+                              ) : teamMembers.length === 0 ? (
+                                <p className="text-xs text-slate-500 p-2">No team members available</p>
+                              ) : (
+                                teamMembers.map((member) => {
+                                  const isSelected = selectedTeamMembers.includes(member._id);
+                                  return (
+                                    <label
+                                      key={member._id}
+                                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={(e) => {
+                                          const newSelected = e.target.checked
+                                            ? [...selectedTeamMembers, member._id]
+                                            : selectedTeamMembers.filter(id => id !== member._id);
+                                          setSelectedTeamMembers(newSelected);
+                                          setForm(prev => {
+                                            const next = { ...prev, teamMembers: newSelected };
+                                            setStoredJson(FORM_STORAGE_KEY, next);
+                                            return next;
+                                          });
+                                        }}
+                                        className="w-4 h-4 rounded border-white/5 bg-slate-900 text-blue-600 cursor-pointer focus:ring-offset-0 focus:ring-0"
+                                      />
+                                      <div className="flex-1">
+                                        <p className="text-xs font-bold text-slate-200">{member.name}</p>
+                                        <p className="text-[10px] text-slate-500">{member.email}</p>
+                                      </div>
+                                    </label>
+                                  );
+                                })
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Cover Image */}
                     <div>

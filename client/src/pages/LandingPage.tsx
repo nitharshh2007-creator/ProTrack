@@ -11,6 +11,7 @@ import {
   Bell,
   Sparkles,
   Layers,
+  Heart,
 } from "lucide-react";
 
 // Animation Variants
@@ -372,91 +373,219 @@ export const LandingPage: FC = () => {
       </section>
 
       {/* Workflow Section */}
-      <section id="workflow" className="py-24 border-t border-white/5 relative bg-gradient-to-b from-[#081120] to-[#070e1b]">
+      <section id="workflow" className="py-32 border-t border-white/5 relative overflow-hidden" style={{background: "linear-gradient(180deg, #081120 0%, #070e1b 50%, #080f1e 100%)"}}>
+        {/* Background glows */}
+        <div className="absolute top-1/2 left-1/4 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2" />
+        <div className="absolute top-1/2 right-1/4 w-[300px] h-[300px] bg-purple-600/5 rounded-full blur-[80px] pointer-events-none -translate-y-1/2" />
+
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-              The lifecycle of delivery
-            </h2>
-            <p className="mt-4 text-slate-400 text-lg">
+          {/* Section header */}
+          <div className="text-center max-w-3xl mx-auto mb-24">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold mb-6"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              <span>Four-Stage Delivery Framework</span>
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight"
+            >
+              The lifecycle of{" "}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">
+                delivery
+              </span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mt-5 text-slate-400 text-lg leading-relaxed"
+            >
               Streamline from idea to launch in four simple, highly effective stages.
-            </p>
+            </motion.p>
           </div>
 
+          {/* Steps */}
           <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 -translate-y-1/2 hidden lg:block" />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-              {/* Step 1 */}
+            {/* Animated connecting line (desktop) */}
+            <div className="absolute top-[52px] left-[calc(12.5%+24px)] right-[calc(12.5%+24px)] h-px hidden lg:block overflow-hidden">
+              <div className="w-full h-full bg-gradient-to-r from-blue-500/30 via-indigo-500/30 to-purple-500/30" />
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ scaleX: 0, transformOrigin: "left" }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.8, delay: 0.5, ease: "easeInOut" }}
+                className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 relative z-10">
+
+              {/* Step 1 — Create Project */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="bg-[#0b1626]/60 border border-white/5 p-6 rounded-2xl relative"
+                transition={{ duration: 0.6, delay: 0.1 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="group relative flex flex-col"
               >
-                <div className="absolute -top-6 left-6 w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-center text-white font-extrabold text-lg shadow-lg">
-                  1
+                {/* Step number badge */}
+                <div className="relative flex justify-start mb-6 lg:justify-center">
+                  <div className="relative">
+                    <div className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-extrabold text-xl shadow-[0_0_24px_rgba(59,130,246,0.5)] group-hover:shadow-[0_0_36px_rgba(59,130,246,0.75)] transition-shadow duration-300 z-10 relative">
+                      1
+                    </div>
+                    <div className="absolute inset-0 rounded-full bg-blue-500/20 scale-150 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-md" />
+                  </div>
                 </div>
-                <h4 className="text-lg font-bold text-white mt-4 mb-2">Create Project</h4>
-                <p className="text-slate-400 text-sm">
-                  Initialize workspaces, define project scopes, set milestones, and invite relevant members.
-                </p>
+
+                {/* Card */}
+                <div className="flex-1 relative bg-gradient-to-br from-[#0d1f3c]/80 to-[#0b1626]/60 border border-white/8 rounded-2xl p-6 backdrop-blur-sm group-hover:border-blue-500/40 group-hover:shadow-[0_8px_40px_rgba(59,130,246,0.12)] transition-all duration-300 overflow-hidden">
+                  {/* Corner glow */}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/8 rounded-bl-[60px] group-hover:bg-blue-500/15 transition-colors duration-300" />
+                  {/* Step label */}
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-4">
+                    Step 01
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-3 group-hover:text-blue-100 transition-colors">Create Project</h4>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    Initialize workspaces, define project scopes, set milestones, and invite relevant members.
+                  </p>
+                  {/* Bottom accent line */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500/0 via-blue-500/60 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
               </motion.div>
 
-              {/* Step 2 */}
+              {/* Step 2 — Assign Tasks */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-[#0b1626]/60 border border-white/5 p-6 rounded-2xl relative"
+                transition={{ duration: 0.6, delay: 0.25 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="group relative flex flex-col"
               >
-                <div className="absolute -top-6 left-6 w-12 h-12 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-400 flex items-center justify-center text-white font-extrabold text-lg shadow-lg">
-                  2
+                <div className="relative flex justify-start mb-6 lg:justify-center">
+                  <div className="relative">
+                    <div className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white font-extrabold text-xl shadow-[0_0_24px_rgba(99,102,241,0.5)] group-hover:shadow-[0_0_36px_rgba(99,102,241,0.75)] transition-shadow duration-300 z-10 relative">
+                      2
+                    </div>
+                    <div className="absolute inset-0 rounded-full bg-indigo-500/20 scale-150 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-md" />
+                  </div>
                 </div>
-                <h4 className="text-lg font-bold text-white mt-4 mb-2">Assign Tasks</h4>
-                <p className="text-slate-400 text-sm">
-                  Break down components, establish priorities, allocate responsibilities, and link dependencies.
-                </p>
+
+                <div className="flex-1 relative bg-gradient-to-br from-[#0e1b3a]/80 to-[#0b1626]/60 border border-white/8 rounded-2xl p-6 backdrop-blur-sm group-hover:border-indigo-500/40 group-hover:shadow-[0_8px_40px_rgba(99,102,241,0.12)] transition-all duration-300 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/8 rounded-bl-[60px] group-hover:bg-indigo-500/15 transition-colors duration-300" />
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest mb-4">
+                    Step 02
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-3 group-hover:text-indigo-100 transition-colors">Assign Tasks</h4>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    Break down components, establish priorities, allocate responsibilities, and link dependencies.
+                  </p>
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-500/0 via-indigo-500/60 to-indigo-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
               </motion.div>
 
-              {/* Step 3 */}
+              {/* Step 3 — Track Progress */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="bg-[#0b1626]/60 border border-white/5 p-6 rounded-2xl relative"
+                transition={{ duration: 0.6, delay: 0.4 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="group relative flex flex-col"
               >
-                <div className="absolute -top-6 left-6 w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-purple-400 flex items-center justify-center text-white font-extrabold text-lg shadow-lg">
-                  3
+                <div className="relative flex justify-start mb-6 lg:justify-center">
+                  <div className="relative">
+                    <div className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-extrabold text-xl shadow-[0_0_24px_rgba(168,85,247,0.5)] group-hover:shadow-[0_0_36px_rgba(168,85,247,0.75)] transition-shadow duration-300 z-10 relative">
+                      3
+                    </div>
+                    <div className="absolute inset-0 rounded-full bg-purple-500/20 scale-150 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-md" />
+                  </div>
                 </div>
-                <h4 className="text-lg font-bold text-white mt-4 mb-2">Track Progress</h4>
-                <p className="text-slate-400 text-sm">
-                  Manage work on the live board, review charts, identify and eliminate pipeline blockages quickly.
-                </p>
+
+                <div className="flex-1 relative bg-gradient-to-br from-[#130e2e]/80 to-[#0b1626]/60 border border-white/8 rounded-2xl p-6 backdrop-blur-sm group-hover:border-purple-500/40 group-hover:shadow-[0_8px_40px_rgba(168,85,247,0.12)] transition-all duration-300 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/8 rounded-bl-[60px] group-hover:bg-purple-500/15 transition-colors duration-300" />
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold uppercase tracking-widest mb-4">
+                    Step 03
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-3 group-hover:text-purple-100 transition-colors">Track Progress</h4>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    Manage work on the live board, review charts, identify and eliminate pipeline blockages quickly.
+                  </p>
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500/0 via-purple-500/60 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
               </motion.div>
 
-              {/* Step 4 */}
+              {/* Step 4 — Complete Goals */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="bg-[#0b1626]/60 border border-white/5 p-6 rounded-2xl relative"
+                transition={{ duration: 0.6, delay: 0.55 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                className="group relative flex flex-col"
               >
-                <div className="absolute -top-6 left-6 w-12 h-12 rounded-full bg-gradient-to-r from-pink-600 to-pink-400 flex items-center justify-center text-white font-extrabold text-lg shadow-lg">
-                  4
+                <div className="relative flex justify-start mb-6 lg:justify-center">
+                  <div className="relative">
+                    <div className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white font-extrabold text-xl shadow-[0_0_24px_rgba(236,72,153,0.5)] group-hover:shadow-[0_0_36px_rgba(236,72,153,0.75)] transition-shadow duration-300 z-10 relative">
+                      4
+                    </div>
+                    <div className="absolute inset-0 rounded-full bg-pink-500/20 scale-150 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-md" />
+                  </div>
                 </div>
-                <h4 className="text-lg font-bold text-white mt-4 mb-2">Complete Goals</h4>
-                <p className="text-slate-400 text-sm">
-                  Close milestones, evaluate project velocity reports, export analytics, and start next sprints.
-                </p>
+
+                <div className="flex-1 relative bg-gradient-to-br from-[#1f0d1a]/80 to-[#0b1626]/60 border border-white/8 rounded-2xl p-6 backdrop-blur-sm group-hover:border-pink-500/40 group-hover:shadow-[0_8px_40px_rgba(236,72,153,0.12)] transition-all duration-300 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-pink-500/8 rounded-bl-[60px] group-hover:bg-pink-500/15 transition-colors duration-300" />
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-[10px] font-bold uppercase tracking-widest mb-4">
+                    Step 04
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-3 group-hover:text-pink-100 transition-colors">Complete Goals</h4>
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    Close milestones, evaluate project velocity reports, export analytics, and start next sprints.
+                  </p>
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-pink-500/0 via-pink-500/60 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
               </motion.div>
+
             </div>
           </div>
+
+          {/* Bottom CTA strip */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="mt-20 flex flex-col sm:flex-row items-center justify-center gap-6 text-center"
+          >
+            <div className="flex items-center gap-3 text-sm text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Average delivery time reduced by <strong className="text-white">40%</strong></span>
+            </div>
+            <div className="hidden sm:block w-px h-4 bg-white/10" />
+            <div className="flex items-center gap-3 text-sm text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              <span>Teams report <strong className="text-white">3× faster</strong> onboarding</span>
+            </div>
+            <div className="hidden sm:block w-px h-4 bg-white/10" />
+            <div className="flex items-center gap-3 text-sm text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+              <span><strong className="text-white">98% satisfaction</strong> across organizations</span>
+            </div>
+          </motion.div>
+
         </div>
       </section>
 
@@ -641,11 +770,12 @@ export const LandingPage: FC = () => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 text-xs text-slate-500">
-            <span>© {new Date().getFullYear()} ProTrack. All rights reserved.</span>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-slate-300">Privacy Policy</a>
-              <a href="#" className="hover:text-slate-300">Terms of Service</a>
-            </div>
+            <span className="flex items-center gap-1.5">
+              Built with <Heart className="w-3 h-3 text-pink-500 fill-pink-500" /> for teams, students, and organizations.
+            </span>
+            <Link to="/register" className="text-xs text-slate-400 hover:text-white transition-colors font-medium">
+              Get Started →
+            </Link>
           </div>
         </div>
       </footer>

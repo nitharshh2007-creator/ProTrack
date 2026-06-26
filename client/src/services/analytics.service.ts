@@ -42,6 +42,7 @@ export interface AnalyticsDataAdmin {
   completionTrend: Array<{ date: string; count: number }>;
   recentActivity: Array<{ type: string; description: string; timestamp: string }>;
   upcomingDeadlines: Deadline[];
+  overdueTasks: number;
 }
 
 export interface AnalyticsDataEmployee {

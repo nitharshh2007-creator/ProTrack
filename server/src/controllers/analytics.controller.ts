@@ -123,12 +123,15 @@ export const getAnalyticsData = async (req: AuthRequest, res: Response) => {
       recentActivity,
       upcomingDeadlines,
       projectProgress,
+      overdueTasks,
     ] = await Promise.all([
       Project.countDocuments(projectMatch),
 
       Project.countDocuments({ ...projectMatch, status: "Active" }),
 
       Project.countDocuments({ ...projectMatch, status: "Completed" }),
+
+      Task.countDocuments({ ...taskMatch, dueDate: { $lt: now }, status: { $ne: "Completed" } }),
 
       Task.aggregate<{ totalTasks: number; completedTasks: number }>([
         { $match: taskMatch },
@@ -268,6 +271,7 @@ export const getAnalyticsData = async (req: AuthRequest, res: Response) => {
       completionTrend,
       recentActivity,
       upcomingDeadlines,
+      overdueTasks,
     });
   } catch (error) {
     console.error("[getAnalyticsData]", error);

@@ -315,8 +315,7 @@
     animation: float 20s ease-in-out infinite; 
   }
   
-  @keyframes float { 
-    0%, 100% { transform: translateY(0) translateX(0); } 
+  
   /* Dropdowns */
   .premium-dropdown {
     background: rgba(19, 27, 46, 0.95);
@@ -358,4 +357,8 @@
     background: rgba(239, 68, 68, 0.1);
     color: #EF4444;
   }
+}
+
+@keyframes float { 
+  0%, 100% { transform: translateY(0) translateX(0); } 
 }

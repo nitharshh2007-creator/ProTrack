@@ -69,57 +69,56 @@ const ProjectHeader = ({
   totalTasks: number;
 }) => (
   <motion.div
-    initial={{ opacity: 0, y: -20 }}
+    initial={{ opacity: 0, y: -15 }}
     animate={{ opacity: 1, y: 0 }}
-    className="premium-hero"
+    className="relative overflow-hidden rounded-[24px] border border-white/5 bg-gradient-to-br from-slate-950 via-[#0B0F19] to-slate-950 p-8 md:p-10 shadow-[0_24px_50px_rgba(0,0,0,0.6)]"
   >
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.12),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(147,51,234,0.08),_transparent_45%)]" />
     
     <div className="relative">
       <Link 
         to={onBack} 
-        className="mb-6 inline-flex items-center gap-2 text-xs font-semibold text-white/80 hover:text-white transition-colors"
+        className="mb-4 inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-white transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Project
       </Link>
       
-      <div className="space-y-2 mb-8">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">Project</p>
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <h1 className="text-3xl font-extrabold text-white mb-3 tracking-tight leading-tight">{project.title}</h1>
+      <div className="space-y-2 mt-2">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 border border-blue-500/20">
+          Project Timeline
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3 items-end">
+          <div className="lg:col-span-2 space-y-2">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">{project.title}</h1>
             {project.description && (
-              <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{project.description}</p>
+              <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{project.description}</p>
             )}
             
             {/* Progress Section */}
-            <div className="mt-8">
-              <div className="mb-4 flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-300">Project Progress</span>
-                <span className="text-2xl font-bold text-white">{project.progress}%</span>
+            <div className="pt-2">
+              <div className="mb-2 flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-400">Project Progress</span>
+                <span className="font-bold text-white">{project.progress}%</span>
               </div>
-              <div className="relative h-2.5 overflow-hidden rounded-full bg-[#0B0F19]">
+              <div className="relative h-1.5 overflow-hidden rounded-full bg-[#0B0F19]">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${project.progress}%` }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-blue-400 shadow-lg"
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-blue-500"
                 />
               </div>
             </div>
           </div>
           
-          <div className="space-y-4">
-            {/* Status & Priority */}
-            <div className="flex flex-wrap gap-3">
-              <span className="premium-badge bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                {project.status}
-              </span>
-              <span className="premium-badge bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                {project.priority} Priority
-              </span>
-            </div>
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            <span className="rounded bg-blue-500/10 border border-blue-500/20 px-2 py-1 text-[10px] font-bold text-blue-400">
+              {project.status}
+            </span>
+            <span className="rounded bg-amber-500/10 border border-amber-500/20 px-2 py-1 text-[10px] font-bold text-amber-400">
+              {project.priority} Priority
+            </span>
           </div>
         </div>
       </div>

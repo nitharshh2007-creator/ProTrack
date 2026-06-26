@@ -45,7 +45,9 @@ const buildBoard = (tasks: Task[]): Board => {
 
 export const KanbanPage = () => {
   const { hasRole } = useAuth();
-  const canEdit = hasRole("admin", "manager");
+  const isPrivileged = hasRole("admin", "manager");
+  // Employees can move their own tasks; admins/managers can move any task
+  const canEdit = true; // authorization is enforced server-side per-task
 
   const [board, setBoard] = useState<Board | null>(null);
   const [loading, setLoading] = useState(true);
@@ -249,17 +251,19 @@ export const KanbanPage = () => {
 
   return (
     <div className="space-y-8">
-      {/* HERO SECTION - Profile Page Style */}
+      {/* HERO SECTION - Premium Enterprise Dark Style */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="premium-hero px-8 md:px-10 py-12 md:py-14"
+        className="relative overflow-hidden rounded-2xl border border-white/5 bg-[#131B2E] p-8 md:p-10 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
-        <div className="relative space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">Workspace Board</p>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.12),_transparent_40%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.03),_transparent_50%)] pointer-events-none" />
+        <div className="relative z-10 space-y-3 text-left">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-400">Workspace Board</p>
           <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">Kanban</h1>
-          <p className="text-sm md:text-base text-slate-300 max-w-2xl leading-relaxed">Visual task management and team collaboration</p>
+          <p className="text-sm md:text-base text-slate-400 max-w-2xl leading-relaxed">
+            Visual task management and team collaboration. Streamline your enterprise workflows with real-time tracking and automated status transitions.
+          </p>
         </div>
       </motion.div>
 
@@ -268,74 +272,87 @@ export const KanbanPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="premium-card p-4"
+        className="rounded-2xl border border-white/5 bg-[#0F172A] p-4 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
       >
-        <div>
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Premium Search Bar */}
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="premium-input pl-12 pr-4 py-3"
-              />
-            </div>
-            
-            {/* Filter Controls */}
-            <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          {/* Premium Search Bar */}
+          <div className="relative w-full lg:flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-[#0B0F19] border border-white/5 focus:border-blue-500/50 rounded-full py-2.5 pl-11 pr-4 text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all font-medium placeholder-slate-500"
+            />
+          </div>
+          
+          {/* Filter Controls */}
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <div className="relative inline-block w-full sm:w-auto sm:min-w-[150px]">
               <select
                 value={projectFilter}
                 onChange={(e) => setProjectFilter(e.target.value)}
-                className="premium-input px-3 py-2 w-auto"
+                className="appearance-none w-full bg-[#131B2E] border border-white/5 rounded-full py-2.5 px-5 pr-10 text-xs font-semibold text-slate-300 focus:outline-none focus:border-blue-500/50 cursor-pointer transition-all"
               >
                 <option value="">All Projects</option>
                 {filterOptions.projects.map(project => (
                   <option key={project} value={project}>{project}</option>
                 ))}
               </select>
-              
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+            
+            <div className="relative inline-block w-full sm:w-auto sm:min-w-[150px]">
               <select
                 value={assigneeFilter}
                 onChange={(e) => setAssigneeFilter(e.target.value)}
-                className="premium-input px-3 py-2 w-auto"
+                className="appearance-none w-full bg-[#131B2E] border border-white/5 rounded-full py-2.5 px-5 pr-10 text-xs font-semibold text-slate-300 focus:outline-none focus:border-blue-500/50 cursor-pointer transition-all"
               >
                 <option value="">All Assignees</option>
                 {filterOptions.assignees.map(assignee => (
                   <option key={assignee} value={assignee}>{assignee}</option>
                 ))}
               </select>
-              
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
+            
+            <div className="relative inline-block w-full sm:w-auto sm:min-w-[150px]">
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="premium-input px-3 py-2 w-auto"
+                className="appearance-none w-full bg-[#131B2E] border border-white/5 rounded-full py-2.5 px-5 pr-10 text-xs font-semibold text-slate-300 focus:outline-none focus:border-blue-500/50 cursor-pointer transition-all"
               >
                 <option value="">All Priorities</option>
                 {filterOptions.priorities.map(priority => (
                   <option key={priority} value={priority}>{priority}</option>
                 ))}
               </select>
-              
-              {(search || projectFilter || assigneeFilter || priorityFilter) && (
-                <button
-                  onClick={clearFilters}
-                  className="premium-button-danger px-3 py-2 text-xs"
-                >
-                  Clear Filters
-                </button>
-              )}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
             </div>
+            
+            {(search || projectFilter || assigneeFilter || priorityFilter) && (
+              <button
+                onClick={clearFilters}
+                className="w-full sm:w-auto bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-full px-5 py-2.5 text-xs font-bold transition-all duration-200"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
       </motion.div>
 
-      {/* Readonly notice */}
-      {!canEdit && (
+      {/* Readonly notice for truly read-only cases */}
+      {!isPrivileged && (
         <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 px-4 py-2 text-sm text-blue-400">
-          View only — you do not have permission to move tasks.
+          You can update the status of tasks assigned to you by dragging them between columns.
         </div>
       )}
 

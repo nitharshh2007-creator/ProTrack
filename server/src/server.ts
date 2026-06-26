@@ -20,6 +20,7 @@ import teamRoutes from "./routes/team.routes.ts";
 import { initializeSocket } from "./realtime/socket.ts";
 import { sendDeadlineNotifications } from "./services/notification.service.ts";
 import settingsRoutes from "./routes/settings.routes.ts";
+import workspaceRoutes from "./routes/workspace.routes.ts";
 dotenv.config();
 
 connectDB();
@@ -80,6 +81,7 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/invites", inviteRoutes);
 app.use("/api/team", teamRoutes);
+app.use("/api/workspace", workspaceRoutes);
 
 app.get("/", (_req, res) => { res.send("ProTrack API Running..."); });
 

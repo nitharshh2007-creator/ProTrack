@@ -2,6 +2,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Task, TaskStatus } from "@/types";
 import { KanbanCard } from "./KanbanCard";
+import { FileText, Zap, Eye, AlertOctagon, CheckCircle2 } from "lucide-react";
 
 interface KanbanColumnProps {
   status: TaskStatus;
@@ -15,26 +16,30 @@ interface KanbanColumnProps {
 
 const getEmptyStateContent = (status: TaskStatus) => {
   const configs = {
-    Todo: { icon: "📝", title: "No tasks in Todo", subtitle: "Add tasks to get started" },
-    "In Progress": { icon: "⚡", title: "No tasks in progress", subtitle: "Drag tasks here when you start working" },
-    Review: { icon: "📭", title: "No tasks in Review", subtitle: "Drag tasks here when ready for approval" },
-    Blocked: { icon: "🚫", title: "No blocked tasks", subtitle: "Tasks with blockers will appear here" },
+    Todo: { icon: FileText, title: "No tasks in Todo", subtitle: "Add tasks to get started on your sprint" },
+    "In Progress": { icon: Zap, title: "No tasks in progress", subtitle: "Drag tasks here when you start working" },
+    Review: { icon: Eye, title: "No tasks in Review", subtitle: "Drag tasks here when ready for approval" },
+    Blocked: { icon: AlertOctagon, title: "No blocked tasks", subtitle: "Tasks with blockers will appear here" },
+    Completed: { icon: CheckCircle2, title: "No completed tasks", subtitle: "Finish your tasks to see them completed" },
   };
 
-  return (configs as any)[status] || configs.Todo;
+  return configs[status] || configs.Todo;
 };
+
 // Drop Zone Placeholder Component
 const DropZonePlaceholder = () => (
   <motion.div 
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
     exit={{ opacity: 0, scale: 0.95 }}
-    className="rounded-[18px] border-2 border-dashed border-blue-500/30 bg-blue-950/20 p-8 flex items-center justify-center text-center transition-all duration-200"
+    className="rounded-2xl border-2 border-dashed border-blue-500/30 bg-blue-500/5 p-8 flex items-center justify-center text-center transition-all duration-200"
     style={{ minHeight: '120px' }}
   >
     <div className="text-center">
-      <div className="text-2xl mb-2">📋</div>
-      <div className="text-sm font-medium text-blue-400">
+      <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-2.5">
+        <Zap className="h-5 w-5 text-blue-400 animate-pulse" />
+      </div>
+      <div className="text-sm font-semibold text-blue-400">
         Drop Task Here
       </div>
     </div>
@@ -53,15 +58,16 @@ export const KanbanColumn = ({
   });
   
   const emptyState = getEmptyStateContent(status);
+  const EmptyStateIcon = emptyState.icon;
   
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex flex-col bg-[#131B2E] rounded-[20px] border transition-all duration-200 ${
+      className={`flex flex-col bg-[#0F172A] rounded-2xl border transition-all duration-300 ${
         isOver
-          ? 'border-blue-500 border-2 border-dashed bg-blue-950/20 shadow-[0_0_25px_rgba(37,99,235,0.15)]'
-          : 'border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.35)]'
+          ? 'border-blue-500/50 bg-[#131B2E] shadow-[0_0_30px_rgba(59,130,246,0.15)]'
+          : 'border-white/5 shadow-[0_10px_35px_rgba(0,0,0,0.4)]'
       }`}
       style={{ minWidth: '380px', width: '380px', minHeight: '700px' }}
     >
@@ -70,20 +76,20 @@ export const KanbanColumn = ({
         className="flex items-center justify-between px-6 py-4 border-b border-white/5"
         style={{ 
           height: '64px',
-          borderTopLeftRadius: '18px',
-          borderTopRightRadius: '18px',
-          backgroundColor: '#131B2E',
+          borderTopLeftRadius: '16px',
+          borderTopRightRadius: '16px',
+          backgroundColor: '#0F172A',
           color: 'white'
         }}
       >
         <div className="flex items-center gap-3">
           <div 
-            className="h-2.5 w-2.5 rounded-full"
+            className="h-2.5 w-2.5 rounded-full ring-4 ring-white/5"
             style={{ backgroundColor: statusColor }}
           />
-          <span className="text-sm font-bold text-white">{status}</span>
+          <span className="text-sm font-bold text-white tracking-wide">{status}</span>
         </div>
-        <span className="rounded-full bg-white/5 border border-white/5 px-2.5 py-0.5 text-xs font-bold text-slate-300">
+        <span className="rounded-full bg-white/5 border border-white/5 px-2.5 py-0.5 text-xs font-extrabold text-slate-300">
           {tasks.length}
         </span>
       </div>
@@ -91,13 +97,13 @@ export const KanbanColumn = ({
       {/* Drop Zone */}
       <div
         ref={setNodeRef}
-        className={`flex-1 p-4 transition-all duration-200 ease-out`}
+        className={`flex-1 p-4 transition-all duration-300 ease-out`}
         style={{ 
           minHeight: '600px',
-          borderBottomLeftRadius: '20px',
-          borderBottomRightRadius: '20px',
+          borderBottomLeftRadius: '16px',
+          borderBottomRightRadius: '16px',
           background: isOver 
-            ? 'rgba(37,99,235,0.04)'
+            ? 'rgba(59,130,246,0.02)'
             : '#0B0F19'
         }}
       >
@@ -109,12 +115,12 @@ export const KanbanColumn = ({
             className="flex flex-col items-center justify-center text-center p-8 h-full min-h-[350px]"
           >
             <div 
-              className="flex items-center justify-center w-12 h-12 rounded-xl mb-4 bg-white/5 border border-white/5"
+              className="flex items-center justify-center w-14 h-14 rounded-2xl mb-4 bg-white/5 border border-white/5 text-slate-400 transition-all duration-300"
             >
-              <span className="text-xl">{emptyState.icon}</span>
+              <EmptyStateIcon className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-semibold text-white mb-1">{emptyState.title}</h3>
-            <p className="text-xs text-slate-400">{emptyState.subtitle}</p>
+            <h3 className="text-sm font-bold text-white mb-1.5">{emptyState.title}</h3>
+            <p className="text-xs text-slate-400 max-w-[200px] leading-normal">{emptyState.subtitle}</p>
           </motion.div>
         )}
 

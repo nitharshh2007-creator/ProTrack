@@ -9,7 +9,6 @@ import {
   FolderKanban,
   Kanban,
   ListTodo,
-  PlusCircle,
   Activity,
 } from "lucide-react";
 import {
@@ -53,325 +52,325 @@ export const DashboardAdminView = ({ stats, displayName, refreshing }: Dashboard
   const completionRate = stats.completionRate;
   const chartData = stats.taskStatusDistribution.filter((entry) => entry.count > 0);
 
-  /*
-  const _statCards = [
-    { label: "Total Projects", value: totalProjects, icon: FolderKanban, color: "blue", secondary: totalProjects > 0 ? "From your workspace" : "No projects yet" },
-    { label: "Active Projects", value: activeProjects, icon: Briefcase, color: "cyan", secondary: activeProjects > 0 ? "Currently in progress" : "Waiting to start" },
-    { label: "Completed Projects", value: completedProjects, icon: Target, color: "green", secondary: completedProjects > 0 ? "Finished work" : "Nothing completed yet" },
-    { label: "Total Tasks", value: totalTasks, icon: ListTodo, color: "indigo", secondary: totalTasks > 0 ? "All workspace tasks" : "No tasks available" },
-    { label: "Completed Tasks", value: completedTasks, icon: CheckCircle2, color: "emerald", secondary: `${completionRate}% completion` },
-    { label: "Pending Tasks", value: pendingTasks, icon: Clock3, color: "amber", secondary: pendingTasks > 0 ? "Still open" : "All tasks done" },
-  ] as const;
-  */
-
-  const projectProgress = totalProjects > 0 ? Math.round((completedProjects / totalProjects) * 100) : 0;
+  const projectProgress = completionRate;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {refreshing && (
-        <div className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
-          Refreshing live data...
+        <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-400 animate-pulse">
+          Syncing Live Data...
         </div>
       )}
 
+      {/* Extended Hero Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="premium-hero px-8 md:px-10 py-12 md:py-14"
+        className="relative overflow-hidden rounded-[24px] border border-white/5 bg-gradient-to-br from-slate-950 via-[#0B0F19] to-slate-950 p-8 md:p-10 shadow-[0_24px_50px_rgba(0,0,0,0.6)]"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
-        <div className="relative space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">{getGreeting()}</p>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">{displayName}</h1>
-          <p className="text-sm md:text-base text-slate-300 max-w-2xl leading-relaxed">Manage your workspace, projects, and team activity</p>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="premium-card"
-      >
-        <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <h3 className="text-xl font-bold text-white">Task Status Distribution</h3>
-            <p className="mt-1 text-sm text-slate-400">Live breakdown from workspace tasks</p>
-          </div>
-          <div className="rounded-full bg-blue-500/10 border border-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-400">
-            {totalTasks} tasks
-          </div>
-        </div>
-
-        {chartData.length === 0 ? (
-          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/5 bg-[#0B0F19] px-6 text-center">
-            <ListTodo className="h-10 w-10 text-slate-600" />
-            <p className="mt-4 text-base font-semibold text-white">No task data available</p>
-            <p className="mt-2 max-w-sm text-sm text-slate-400">
-              Once tasks are created, this chart will show Todo, In Progress, Review, Blocked, and Completed counts.
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.12),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(147,51,234,0.08),_transparent_45%)]" />
+        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 border border-blue-500/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+              {getGreeting()}
+            </div>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-none">
+              {displayName}
+            </h1>
+            <p className="text-sm text-slate-400 max-w-xl leading-relaxed">
+              Your ProTrack workspace summary and key task metrics.
             </p>
           </div>
-        ) : (
-          <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
-            <div className="flex items-center justify-center">
-              <div className="h-[400px] w-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      dataKey="count"
-                      nameKey="status"
-                      innerRadius={90}
-                      outerRadius={160}
-                      paddingAngle={2}
-                    >
-                      {chartData.map((entry) => (
-                        <Cell key={entry.status} fill={chartColors[entry.status]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => `${value} tasks`}
-                      contentStyle={{
-                        borderRadius: 12,
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
-                        fontSize: 13,
-                        backgroundColor: "#131B2E",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
-                      }}
-                      itemStyle={{ color: "#E2E8F0" }}
-                      labelStyle={{ color: "#94A3B8" }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+          
+          {/* Quick Stats Integration into Hero */}
+          <div className="flex flex-wrap items-center gap-4 bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/5">
+            <div className="px-3 border-r border-white/10 text-center">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Progress</p>
+              <p className="text-lg font-bold text-emerald-400">{projectProgress}%</p>
             </div>
-
-            <div className="flex flex-col justify-center gap-4">
-              {chartData.map((entry) => (
-                <div
-                  key={entry.status}
-                  className="flex items-center justify-between rounded-2xl border border-white/5 bg-[#0B0F19] px-5 py-5 transition-all duration-200 hover:border-white/10"
-                >
-                  <div className="flex items-center gap-4">
-                    <span
-                      className="h-4 w-4 rounded-full shadow-sm"
-                      style={{ backgroundColor: chartColors[entry.status] }}
-                    />
-                    <span className="text-base font-semibold text-slate-300">{entry.status}</span>
-                  </div>
-                  <span className="text-xl font-bold text-white">{entry.count}</span>
-                </div>
-              ))}
+            <div className="px-3 border-r border-white/10 text-center">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Projects</p>
+              <p className="text-lg font-bold text-white">{totalProjects}</p>
+            </div>
+            <div className="px-3 text-center">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Completion</p>
+              <p className="text-lg font-bold text-blue-400">{completionRate}%</p>
             </div>
           </div>
-        )}
+        </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 gap-8 xl:grid-cols-1">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="premium-card"
-        >
-          <div className="mb-5 flex items-center justify-between gap-4">
+      {/* Main Grid: Stats & Chart */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Project Overview Cards */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="premium-card flex-1 flex flex-col justify-between"
+          >
             <div>
-              <h3 className="text-lg font-bold text-white">Project Overview</h3>
-              <p className="text-sm text-slate-400">Current workspace summary</p>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Workspace Status</span>
+                <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+              </div>
+              <h3 className="text-xl font-extrabold text-white">Active Overview</h3>
+              <p className="text-xs text-slate-400 mt-1">Live metrics across the entire board.</p>
             </div>
-            <div className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400">
-              {projectProgress}% complete
+
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center justify-between rounded-xl bg-[#0B0F19] border border-white/5 p-3">
+                <span className="text-xs text-slate-400">Active Projects</span>
+                <span className="text-sm font-bold text-white">{activeProjects}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-[#0B0F19] border border-white/5 p-3">
+                <span className="text-xs text-slate-400">Completed Projects</span>
+                <span className="text-sm font-bold text-emerald-400">{completedProjects}</span>
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-[#0B0F19] border border-white/5 p-3">
+                <span className="text-xs text-slate-400">Total Tasks</span>
+                <span className="text-sm font-bold text-white">{totalTasks}</span>
+              </div>
             </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="premium-card flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Global Progress</h4>
+                <p className="text-lg font-bold text-white mt-1">{projectProgress}% Completed</p>
+              </div>
+              <FolderKanban className="h-5 w-5 text-blue-400" />
+            </div>
+            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[#0B0F19] border border-white/5">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${projectProgress}%` }}
+                transition={{ duration: 1 }}
+                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
+              />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Task Status Distribution Chart */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="premium-card lg:col-span-2 flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+            <div>
+              <h3 className="text-base font-bold text-white">Task Status Distribution</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Distribution of current workspace tasks</p>
+            </div>
+            <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-400">
+              {totalTasks} tasks
+            </span>
           </div>
 
-          {totalProjects === 0 ? (
-            <div className="flex min-h-[290px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/5 bg-[#0B0F19] px-6 text-center">
-              <FolderKanban className="h-10 w-10 text-slate-600" />
-              <p className="mt-4 text-base font-semibold text-white">Create your first project</p>
-              <p className="mt-2 max-w-sm text-sm text-slate-400">
-                Start tracking progress, tasks, and deadlines across your workspace.
-              </p>
-              <button
-                onClick={() => navigate("/projects/new")}
-                className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Create Project
-              </button>
+          {chartData.length === 0 ? (
+            <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl bg-[#0B0F19] border border-dashed border-white/5 px-6 text-center">
+              <ListTodo className="h-8 w-8 text-slate-600" />
+              <p className="mt-3 text-sm font-semibold text-white">No tasks available</p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-2xl bg-[#0B0F19] border border-white/5 p-5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400 font-medium">Active Projects</span>
-                  <span className="text-lg font-bold text-white">{activeProjects}</span>
+            <div className="grid gap-6 sm:grid-cols-2 items-center">
+              <div className="flex justify-center">
+                <div className="h-[200px] w-[200px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        dataKey="count"
+                        nameKey="status"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={2}
+                      >
+                        {chartData.map((entry) => (
+                          <Cell key={entry.status} fill={chartColors[entry.status]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => `${value} tasks`}
+                        contentStyle={{
+                          borderRadius: 12,
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          fontSize: 12,
+                          backgroundColor: "#131B2E",
+                          boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
+                        }}
+                        itemStyle={{ color: "#E2E8F0" }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
-              <div className="rounded-2xl bg-[#0B0F19] border border-white/5 p-5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400 font-medium">Completed Projects</span>
-                  <span className="text-lg font-bold text-white">{completedProjects}</span>
-                </div>
-              </div>
-              <div className="rounded-2xl bg-[#0B0F19] border border-white/5 p-5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400 font-medium">Total Tasks</span>
-                  <span className="text-lg font-bold text-white">{totalTasks}</span>
-                </div>
-              </div>
-              <div className="rounded-2xl bg-[#0B0F19] border border-white/5 p-5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-400 font-medium">Completion Rate</span>
-                  <span className="text-lg font-bold text-emerald-400">{completionRate}%</span>
-                </div>
+
+              <div className="space-y-2">
+                {chartData.map((entry) => (
+                  <div
+                    key={entry.status}
+                    className="flex items-center justify-between rounded-xl border border-white/5 bg-[#0B0F19] px-4 py-2 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: chartColors[entry.status] }}
+                      />
+                      <span className="font-semibold text-slate-400">{entry.status}</span>
+                    </div>
+                    <span className="font-bold text-white">{entry.count}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+      {/* Activity and Deadlines Grid */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Recent Activity */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="premium-card"
+          transition={{ delay: 0.2 }}
+          className="premium-card flex flex-col justify-between"
         >
-          <div className="mb-5 flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
             <div>
-              <h3 className="text-lg font-bold text-white">Recent Activity</h3>
-              <p className="text-sm text-slate-400">Latest actions across your workspace</p>
+              <h3 className="text-base font-bold text-white">Recent Activity</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Real-time workspace update feed</p>
             </div>
           </div>
 
           {stats.recentActivities.length ? (
-            <div className="space-y-3">
-              {stats.recentActivities.map((activity) => {
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              {stats.recentActivities.slice(0, 4).map((activity) => {
                 const Icon = activityIconMap[activity.type] ?? Activity;
                 const tone = activityToneMap[activity.type] ?? "bg-white/5 text-slate-400 border-white/5";
                 return (
                   <div
                     key={activity.id}
-                    className="flex items-start gap-4 rounded-2xl border border-white/5 bg-[#0B0F19] p-4 transition-all duration-200 hover:border-white/10"
+                    className="flex items-start gap-3 rounded-xl border border-white/5 bg-[#0B0F19] p-3 transition-colors hover:border-white/10"
                   >
-                    <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${tone}`}>
-                      <Icon className="h-5 w-5" />
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${tone}`}>
+                      <Icon className="h-4 w-4" />
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-white">{activity.title}</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="text-xs font-semibold text-white">{activity.title}</p>
                         {activity.actorName && (
-                          <span className="text-xs text-slate-400">by {activity.actorName}</span>
+                          <span className="text-[10px] text-slate-500">by {activity.actorName}</span>
                         )}
                       </div>
-                      <p className="mt-1 text-sm text-slate-300">{activity.message}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                        <span>{formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}</span>
-                        {activity.projectName && (
-                          <span className="rounded-full bg-[#131B2E] px-2 py-0.5 text-slate-300 border border-white/5">
-                            {activity.projectName}
-                          </span>
-                        )}
-                        {activity.taskTitle && (
-                          <span className="rounded-full bg-[#131B2E] px-2 py-0.5 text-slate-300 border border-white/5">
-                            {activity.taskTitle}
-                          </span>
-                        )}
-                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-snug">{activity.message}</p>
+                      <span className="text-[9px] text-slate-500 block mt-1">
+                        {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                      </span>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="flex min-h-[240px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/5 bg-[#0B0F19] px-6 text-center">
-              <Activity className="h-10 w-10 text-slate-600" />
-              <p className="mt-4 text-base font-semibold text-white">No recent activity yet</p>
-              <p className="mt-2 max-w-sm text-sm text-slate-400">
-                New projects, tasks, comments, and file uploads will appear here automatically.
-              </p>
+            <div className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-dashed border-white/5 bg-[#0B0F19] text-center">
+              <Activity className="h-8 w-8 text-slate-600" />
+              <p className="mt-3 text-xs font-semibold text-white">No activities yet</p>
             </div>
           )}
         </motion.div>
 
+        {/* Upcoming Deadlines */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="premium-card"
+          transition={{ delay: 0.25 }}
+          className="premium-card flex flex-col justify-between"
         >
-          <div className="mb-5 flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
             <div>
-              <h3 className="text-lg font-bold text-white">Upcoming Deadlines</h3>
-              <p className="text-sm text-slate-400">Nearest task deadlines first</p>
+              <h3 className="text-base font-bold text-white">Upcoming Deadlines</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Tasks approaching target date</p>
             </div>
           </div>
 
           {stats.upcomingDeadlines.length ? (
-            <div className="space-y-3">
-              {stats.upcomingDeadlines.map((task) => (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              {stats.upcomingDeadlines.slice(0, 4).map((task) => (
                 <div
                   key={task.id}
-                  className="rounded-2xl border border-white/5 bg-[#0B0F19] p-4 transition-all duration-200 hover:border-white/10"
+                  className="rounded-xl border border-white/5 bg-[#0B0F19] p-3 transition-colors hover:border-white/10"
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-semibold text-white">{task.title}</p>
-                      <p className="mt-1 text-sm text-slate-400">{task.projectName}</p>
+                      <p className="text-xs font-semibold text-white truncate">{task.title}</p>
+                      <p className="text-[10px] text-slate-500 truncate mt-0.5">{task.projectName}</p>
                     </div>
                     <span
-                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${task.priority === "High"
-                        ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                        : task.priority === "Medium"
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold ${
+                        task.priority === "High"
+                          ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                          : task.priority === "Medium"
                           ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                           : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                        }`}
+                      }`}
                     >
                       {task.priority}
                     </span>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-400">
-                    <span>{format(new Date(task.dueDate), "MMM d, yyyy")}</span>
-                    <span className="rounded-full bg-[#131B2E] px-2 py-0.5 border border-white/5 text-slate-300">{task.status}</span>
+                  <div className="mt-2 flex items-center justify-between text-[10px]">
+                    <span className="text-slate-400">{format(new Date(task.dueDate), "MMM d, yyyy")}</span>
+                    <span className="rounded bg-[#131B2E] px-1.5 py-0.5 border border-white/5 text-[9px] text-slate-400">
+                      {task.status}
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex min-h-[240px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/5 bg-[#0B0F19] px-6 text-center">
-              <Clock3 className="h-10 w-10 text-slate-600" />
-              <p className="mt-4 text-base font-semibold text-white">No tasks available</p>
-              <p className="mt-2 max-w-sm text-sm text-slate-400">
-                Once tasks are created, the nearest deadlines will appear here.
-              </p>
+            <div className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border border-dashed border-white/5 bg-[#0B0F19] text-center">
+              <Clock3 className="h-8 w-8 text-slate-600" />
+              <p className="mt-3 text-xs font-semibold text-white">All caught up</p>
             </div>
           )}
         </motion.div>
       </div>
 
-      <div>
-        <h3 className="mb-6 text-lg font-bold text-white">Quick Actions</h3>
+      {/* Quick Actions */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-bold text-white tracking-wider uppercase">Quick Actions</h3>
         <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {quickActions.map(({ label, icon: Icon, to, desc }) => (
             <motion.button
               key={to}
               variants={fadeUp}
-              whileHover={{ y: -4, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ y: -2, scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => navigate(to)}
-              className="premium-card group p-6 text-left"
+              className="premium-card group p-5 text-left flex flex-col justify-between"
             >
-              <div className="mb-4 flex items-center justify-between">
-                <div className="premium-icon-container-small">
-                  <Icon className="h-5 w-5 text-blue-400" />
+              <div className="flex items-center justify-between mb-3">
+                <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                  <Icon className="h-4.5 w-4.5" />
                 </div>
-                <ArrowRight className="h-5 w-5 text-slate-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-blue-400" />
+                <ArrowRight className="h-4 w-4 text-slate-500 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-blue-400" />
               </div>
               <div>
-                <p className="mb-1 font-semibold text-white">{label}</p>
-                <p className="text-sm text-slate-400">{desc}</p>
+                <p className="font-bold text-white text-sm">{label}</p>
+                <p className="text-xs text-slate-400 mt-1">{desc}</p>
               </div>
             </motion.button>
           ))}

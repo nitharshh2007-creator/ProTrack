@@ -39,7 +39,7 @@ router.get("/:id", verifyToken, getTaskById);
 
 // PUT /api/tasks/:id
 // Supports updating startDate and dueDate. startDate must be <= dueDate.
-router.put("/:id", verifyToken, authorize("admin", "manager"), updateTask);
+router.put("/:id", verifyToken, updateTask);
 
 // DELETE /api/tasks/:id
 router.delete("/:id", verifyToken, authorize("admin"), deleteTask);

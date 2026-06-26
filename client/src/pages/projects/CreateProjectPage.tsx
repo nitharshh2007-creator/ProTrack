@@ -19,11 +19,6 @@ const emptyForm = (): CreateProjectPayload => getStoredJson<CreateProjectPayload
   teamMembers: [],
 });
 
-const statusColors = {
-  Planning: "from-blue-500 to-blue-600",
-  Active: "from-green-500 to-green-600",
-  Completed: "from-gray-500 to-gray-600",
-};
 
 export const CreateProjectPage = () => {
   const navigate = useNavigate();
@@ -190,25 +185,25 @@ export const CreateProjectPage = () => {
   return (
     <div className="min-h-screen bg-transparent pb-12">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="premium-hero mb-12"
+        className="relative overflow-hidden rounded-[24px] border border-white/5 bg-gradient-to-br from-slate-950 via-[#0B0F19] to-slate-950 p-8 md:p-10 shadow-[0_24px_50px_rgba(0,0,0,0.6)] mb-8"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.05),_transparent_45%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.12),_transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(147,51,234,0.08),_transparent_45%)]" />
 
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-555 shadow-lg shrink-0">
-              {isEditing ? <Edit className="h-7 w-7 text-white" /> : <Rocket className="h-7 w-7 text-white" />}
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 shadow-lg shrink-0">
+              {isEditing ? <Edit className="h-5.5 w-5.5 text-blue-450" /> : <Rocket className="h-5.5 w-5.5 text-blue-455" />}
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400/80">
-                {isEditing ? 'Edit' : 'Launch'}
-              </p>
-              <h1 className="text-3xl font-extrabold text-white tracking-tight leading-none mt-2">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 border border-blue-500/20">
+                {isEditing ? 'Project settings' : 'New Workspace'}
+              </div>
+              <h1 className="text-2xl font-extrabold text-white tracking-tight leading-none mt-2">
                 {isEditing ? 'Edit Project' : 'Create New Project'}
               </h1>
-              <p className="mt-3 text-[#CBD5E1] max-w-2xl text-sm leading-relaxed">
+              <p className="mt-2 text-slate-400 max-w-xl text-xs leading-relaxed">
                 {isEditing 
                   ? 'Update your project details, settings and cover image.'
                   : 'Build, organize and manage your team\'s work from a single collaborative workspace.'
@@ -217,31 +212,31 @@ export const CreateProjectPage = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto md:max-w-md shrink-0">
+          <div className="flex items-center gap-3 w-full lg:w-auto lg:max-w-md shrink-0">
             {stepIndicators.map((indicator, idx) => (
-              <motion.div key={indicator.num} className="flex items-center gap-3 flex-1">
+              <div key={indicator.num} className="flex items-center gap-3 flex-1">
                 <motion.div
-                  whileHover={step >= indicator.num ? { scale: 1.1 } : {}}
+                  whileHover={step >= indicator.num ? { scale: 1.05 } : {}}
                   onClick={() => step > indicator.num && setStep(indicator.num)}
-                  className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition-all cursor-pointer ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all cursor-pointer ${
                     step >= indicator.num
-                      ? "bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30"
-                      : "bg-slate-800 text-slate-400 border border-slate-700"
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-500/30"
+                      : "bg-[#0B0F19] text-slate-500 border border-white/5"
                   }`}
                 >
-                  {step > indicator.num ? <CheckCircle className="h-5 w-5" /> : indicator.num}
+                  {step > indicator.num ? <CheckCircle className="h-4.5 w-4.5" /> : indicator.num}
                 </motion.div>
-                <div className={`text-xs font-semibold uppercase tracking-wider ${step >= indicator.num ? "text-white" : "text-slate-500"}`}>
+                <div className={`text-[10px] font-bold uppercase tracking-wider ${step >= indicator.num ? "text-white" : "text-slate-500"}`}>
                   {indicator.label}
                 </div>
                 {idx < stepIndicators.length - 1 && (
-                  <motion.div
-                    className={`flex-1 h-[2px] transition-colors ${
-                      step > indicator.num ? "bg-blue-500" : "bg-slate-800"
+                  <div
+                    className={`flex-1 h-[1px] min-w-[20px] transition-colors ${
+                      step > indicator.num ? "bg-blue-500" : "bg-white/5"
                     }`}
                   />
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -250,42 +245,37 @@ export const CreateProjectPage = () => {
       <form onSubmit={handleSubmit} className="mx-auto max-w-6xl">
         <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -15 }}
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={step === 1 ? { opacity: 1, height: "auto" } : { opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
+            <div className={`${step === 1 ? 'block' : 'hidden'}`}>
               <div className="premium-card space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-100">Project Details</h2>
-                  <p className="mt-1 text-sm text-slate-400">Give your project a name and description</p>
+                  <h2 className="text-lg font-bold text-slate-100">Project Details</h2>
+                  <p className="mt-1 text-xs text-slate-400">Give your project a name and description</p>
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Project Name</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Project Name</label>
                   <input
                     type="text"
                     placeholder="e.g., Project Aurora"
                     value={form.title}
                     onChange={setField("title")}
-                    className="premium-input"
+                    className="premium-input bg-[#0B0F19] border border-white/5 px-4 py-2.5 rounded-xl text-sm"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Description</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Description</label>
                   <textarea
                     rows={6}
                     placeholder="Describe your project vision, goals, and expected outcome..."
                     value={form.description}
                     onChange={setField("description")}
-                    className="premium-input resize-none"
+                    className="premium-input bg-[#0B0F19] border border-white/5 px-4 py-2.5 rounded-xl text-sm resize-none"
                     required
                   />
                 </div>
@@ -294,34 +284,29 @@ export const CreateProjectPage = () => {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-xl border border-red-900/30 bg-red-950/20 px-4 py-3 text-sm text-red-400 flex items-center gap-2"
+                    className="rounded-xl border border-red-900/30 bg-red-950/20 px-4 py-3 text-xs text-red-400 flex items-center gap-2"
                   >
                     <AlertCircle className="h-4 w-4 shrink-0" />
                     {error}
                   </motion.div>
                 )}
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={step === 2 ? { opacity: 1, height: "auto" } : { opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
+            <div className={`${step === 2 ? 'block' : 'hidden'}`}>
               <div className="premium-card space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-100">Project Settings</h2>
-                  <p className="mt-1 text-sm text-slate-400">Configure status, priority, deadline and team</p>
+                  <h2 className="text-lg font-bold text-slate-100">Project Settings</h2>
+                  <p className="mt-1 text-xs text-slate-400">Configure status, priority, deadline and team</p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Status</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Status</label>
                     <select
                       value={form.status}
                       onChange={setField("status")}
-                      className="premium-input"
+                      className="premium-input bg-[#0B0F19] border border-white/5 px-4 py-2.5 rounded-xl text-sm text-slate-300"
                     >
                       <option value="Planning">Planning</option>
                       <option value="Active">Active</option>
@@ -329,11 +314,11 @@ export const CreateProjectPage = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Priority</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Priority</label>
                     <select
                       value={form.priority}
                       onChange={setField("priority")}
-                      className="premium-input"
+                      className="premium-input bg-[#0B0F19] border border-white/5 px-4 py-2.5 rounded-xl text-sm text-slate-300"
                     >
                       <option value="Low">Low</option>
                       <option value="Medium">Medium</option>
@@ -343,23 +328,23 @@ export const CreateProjectPage = () => {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Deadline (Optional)</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Deadline (Optional)</label>
                   <input
                     type="date"
                     value={form.deadline ?? ""}
                     onChange={setField("deadline")}
-                    className="premium-input"
+                    className="premium-input bg-[#0B0F19] border border-white/5 px-4 py-2.5 rounded-xl text-sm text-slate-300"
                   />
                 </div>
 
-                {user?.role === "admin" && (
-                  <div className="border-t border-slate-800 pt-6">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Team Members</label>
+                {(user?.role === "admin" || user?.role === "manager") && (
+                  <div className="border-t border-white/5 pt-6">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Team Members</label>
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="premium-input text-left flex justify-between items-center"
+                        className="premium-input bg-[#0B0F19] border border-white/5 px-4 py-2.5 rounded-xl text-sm text-left flex justify-between items-center text-slate-300"
                       >
                         <span>
                           {selectedTeamMembers.length === 0
@@ -370,20 +355,20 @@ export const CreateProjectPage = () => {
                       </button>
 
                       {dropdownOpen && (
-                        <div className="absolute z-20 w-full mt-2 bg-[#0E1424] border border-slate-850 rounded-xl shadow-2xl max-h-60 overflow-y-auto p-1.5 space-y-1 top-full left-0 backdrop-blur-md">
+                        <div className="absolute z-20 w-full mt-2 bg-[#0E1424] border border-white/5 rounded-xl shadow-2xl max-h-60 overflow-y-auto p-1.5 space-y-1 top-full left-0 backdrop-blur-md">
                           {loadingMembers ? (
                             <div className="flex items-center justify-center py-4">
                               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
                             </div>
                           ) : teamMembers.length === 0 ? (
-                            <p className="text-sm text-slate-500 p-2">No team members available</p>
+                            <p className="text-xs text-slate-500 p-2">No team members available</p>
                           ) : (
                             teamMembers.map((member) => {
                               const isSelected = selectedTeamMembers.includes(member._id);
                               return (
                                 <label
                                   key={member._id}
-                                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-800/60 cursor-pointer transition-colors"
+                                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors"
                                 >
                                   <input
                                     type="checkbox"
@@ -399,11 +384,11 @@ export const CreateProjectPage = () => {
                                         return next;
                                       });
                                     }}
-                                    className="w-4 h-4 rounded border-slate-750 bg-slate-900 text-blue-600 cursor-pointer focus:ring-offset-0 focus:ring-0"
+                                    className="w-4 h-4 rounded border-white/5 bg-slate-900 text-blue-600 cursor-pointer focus:ring-offset-0 focus:ring-0"
                                   />
                                   <div className="flex-1">
-                                    <p className="text-sm font-medium text-slate-200">{member.name}</p>
-                                    <p className="text-xs text-slate-400">{member.email}</p>
+                                    <p className="text-xs font-bold text-slate-200">{member.name}</p>
+                                    <p className="text-[10px] text-slate-500">{member.email}</p>
                                   </div>
                                 </label>
                               );
@@ -414,37 +399,27 @@ export const CreateProjectPage = () => {
                     </div>
                   </div>
                 )}
-
-                <div className="rounded-xl border border-blue-900/30 bg-blue-950/15 p-4 space-y-2">
-                  <p className="text-sm font-semibold text-blue-400">💡 Pro Tip</p>
-                  <p className="text-xs text-blue-300">Set a clear deadline to keep your team focused and accountable on the project timeline.</p>
-                </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={step === 3 ? { opacity: 1, height: "auto" } : { opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
+            <div className={`${step === 3 ? 'block' : 'hidden'}`}>
               <div className="premium-card space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-100">Project Cover</h2>
-                  <p className="mt-1 text-sm text-slate-400">Add a professional cover image (optional)</p>
+                  <h2 className="text-lg font-bold text-slate-100">Project Cover</h2>
+                  <p className="mt-1 text-xs text-slate-400">Add a professional cover image (optional)</p>
                 </div>
 
                 {imagePreview ? (
                   <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
+                    initial={{ scale: 0.98, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="relative rounded-xl overflow-hidden border-2 border-blue-500/20"
+                    className="relative rounded-xl overflow-hidden border border-white/5"
                   >
-                    <img src={imagePreview} alt="Cover" className="w-full h-48 object-cover" />
+                    <img src={imagePreview} alt="Cover" className="w-full h-40 object-cover" />
                     <button
                       type="button"
                       onClick={() => { setImagePreview(null); setForm(prev => ({ ...prev, coverImage: undefined })); setStoredJson(FORM_STORAGE_KEY, { ...form, coverImage: undefined }); }}
-                      className="absolute right-3 top-3 rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-750 transition"
+                      className="absolute right-3 top-3 rounded-lg bg-red-600/90 hover:bg-red-700 px-3 py-1 text-xs font-semibold text-white shadow-lg transition"
                     >
                       Remove
                     </button>
@@ -454,17 +429,17 @@ export const CreateProjectPage = () => {
                     onDrop={handleDrop}
                     onDragOver={(e) => e.preventDefault()}
                     onClick={() => coverFileRef.current?.click()}
-                    className="relative rounded-xl border-2 border-dashed border-slate-800 bg-slate-950/20 px-6 py-12 text-center transition hover:border-blue-500/50 hover:bg-slate-900/45 cursor-pointer"
+                    className="relative rounded-xl border border-dashed border-white/10 bg-[#0B0F19] px-6 py-10 text-center transition hover:border-blue-500/50 hover:bg-white/5 cursor-pointer"
                   >
                     <div className="flex flex-col items-center gap-3">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20">
-                        <svg className="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-450">
+                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                       </div>
                       <div>
-                        <p className="font-semibold text-slate-200">Drag & drop image here</p>
-                        <p className="text-xs text-slate-400 mt-1">or click to browse (PNG, JPG, max 10MB)</p>
+                        <p className="text-xs font-bold text-slate-200">Drag & drop image here</p>
+                        <p className="text-[10px] text-slate-500 mt-1">or click to browse (PNG, JPG, max 10MB)</p>
                       </div>
                     </div>
                     <input
@@ -479,24 +454,15 @@ export const CreateProjectPage = () => {
                     />
                   </div>
                 )}
-
-                <div className="rounded-xl border border-amber-900/30 bg-amber-950/15 p-4 space-y-2">
-                  <p className="text-sm font-semibold text-amber-400">✨ Cover Image Tips</p>
-                  <ul className="text-xs text-amber-300 space-y-1 list-disc list-inside">
-                    <li>Use high-quality images (1600x900px recommended)</li>
-                    <li>Choose images that represent your project</li>
-                    <li>Images display on project cards and overview</li>
-                  </ul>
-                </div>
               </div>
-            </motion.div>
+            </div>
 
             <div className="flex gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => step > 1 ? setStep(step - 1) : navigate("/projects")}
                 disabled={saving}
-                className="premium-button-secondary"
+                className="premium-button-secondary py-2 text-sm"
               >
                 {step > 1 ? "← Back" : "Cancel"}
               </button>
@@ -505,12 +471,12 @@ export const CreateProjectPage = () => {
                   type="button"
                   onClick={() => setStep(step + 1)}
                   disabled={step === 1 && (!form.title?.trim() || !form.description?.trim())}
-                  className="premium-button-primary flex items-center gap-2 ml-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="premium-button-primary flex items-center gap-2 ml-auto disabled:opacity-50 disabled:cursor-not-allowed py-2 text-sm"
                 >
                   Next <ArrowRight className="h-4 w-4" />
                 </button>
               ) : (
-                <button type="submit" disabled={saving} className="premium-button-primary flex items-center gap-2 ml-auto disabled:opacity-50">
+                <button type="submit" disabled={saving} className="premium-button-primary flex items-center gap-2 ml-auto disabled:opacity-50 py-2 text-sm">
                   <CheckCircle className="h-4 w-4" />
                   {isEditing ? "Update project" : "Create project"}
                 </button>
@@ -519,12 +485,12 @@ export const CreateProjectPage = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 15 }}
             animate={{ opacity: 1, x: 0 }}
             className="hidden lg:block animate-fade-in"
           >
             <div className="premium-card sticky top-8 space-y-6">
-              <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Project Preview</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Project Preview</h3>
 
               <div className="space-y-6">
                 {imagePreview ? (
@@ -534,45 +500,43 @@ export const CreateProjectPage = () => {
                     animate={{ opacity: 1 }}
                     src={imagePreview}
                     alt="Cover"
-                    className="w-full h-32 rounded-xl object-cover border border-slate-800"
+                    className="w-full h-32 rounded-xl object-cover border border-white/5"
                   />
                 ) : (
-                  <div className={`w-full h-32 rounded-xl bg-gradient-to-br ${statusColors[form.status || "Planning"]} flex items-center justify-center text-white text-4xl font-bold border border-slate-800`}>
-                    {form.title?.charAt(0).toUpperCase() || "?"}
-                  </div>
+                  <div className="w-full h-32 rounded-xl bg-gradient-to-br from-slate-900 to-[#0B0F19] border border-white/5" />
                 )}
 
-                <div className="space-y-4 pt-4 border-t border-slate-800">
+                <div className="space-y-4 pt-4 border-t border-white/5">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Title</p>
-                    <p className="mt-1 text-lg font-bold text-slate-200 truncate">{form.title || "Untitled Project"}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-550 font-bold">Title</p>
+                    <p className="mt-1 text-base font-bold text-slate-200 truncate">{form.title || "Untitled Project"}</p>
                   </div>
 
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Description</p>
-                    <p className="mt-1 text-sm text-slate-400 line-clamp-3 leading-relaxed">{form.description || "No description yet"}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-550 font-bold">Description</p>
+                    <p className="mt-1 text-xs text-slate-400 line-clamp-3 leading-relaxed">{form.description || "No description yet"}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800">
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/5">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Status</p>
-                      <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-semibold border border-blue-500/20 text-blue-400">
-                        <div className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-550 font-bold">Status</p>
+                      <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-semibold border border-blue-500/20 text-blue-450">
+                        <div className="h-1 w-1 rounded-full bg-blue-400" />
                         {form.status}
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-500 font-semibold">Priority</p>
-                      <p className="mt-1.5 text-sm font-semibold text-slate-300">{form.priority}</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-550 font-bold">Priority</p>
+                      <p className="mt-1.5 text-xs font-bold text-slate-300">{form.priority}</p>
                     </div>
                   </div>
 
                   {form.deadline && (
-                    <div className="rounded-xl bg-slate-950/40 border border-slate-850 p-3 flex items-center gap-2.5 text-sm mt-2">
-                      <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
+                    <div className="rounded-xl bg-[#0B0F19] border border-white/5 p-3 flex items-center gap-2.5 text-xs mt-2">
+                      <Calendar className="h-4 w-4 text-slate-500 shrink-0" />
                       <div>
-                        <p className="text-xs text-slate-550">Deadline</p>
-                        <p className="font-semibold text-slate-300 mt-0.5">{new Date(form.deadline).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Deadline</p>
+                        <p className="font-bold text-slate-300 mt-0.5">{new Date(form.deadline).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )}
